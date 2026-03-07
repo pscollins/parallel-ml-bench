@@ -1,6 +1,5 @@
 {
-  "compiler": "mpl",
-  "mpl-switch-commit": "a71659b",
+  "compiler": "/home/pscollins/code/mpl/build/bin/mpl",
   "flags": [],
   "compat": "mpl"
 }
