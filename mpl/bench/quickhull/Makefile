@@ -3,13 +3,14 @@ MPL_FLAGS ?= -default-type int64 -default-type word64 -mlb-path-var 'COMPAT mpl'
 
 .PHONY: all clean run
 
-all: quickhull.bin
+all: bin/quickhull.bin
 
-quickhull.bin: *.sml quickhull.mlb ../../lib.mlb
-	$(MPL) $(MPL_FLAGS) -output quickhull.bin quickhull.mlb
+bin/quickhull.bin: *.sml quickhull.mlb ../../lib.mlb
+	mkdir -p bin
+	$(MPL) $(MPL_FLAGS) -output bin/quickhull.bin quickhull.mlb
 
-run: quickhull.bin
-	./quickhull.bin -n 10000
+run: bin/quickhull.bin
+	./bin/quickhull.bin -n 10000
 
 clean:
-	rm -f quickhull.bin
+	rm -rf bin
