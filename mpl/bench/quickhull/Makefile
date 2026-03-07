@@ -1,5 +1,5 @@
 MPL ?= $(HOME)/code/mpl/build/bin/mpl
-EXTRA_MPL_FLAGS = 
+EXTRA_MPL_FLAGS ?= 
 MPL_FLAGS ?= -default-type int64 -default-type word64 -mlb-path-var 'COMPAT mpl'
 
 .PHONY: all clean run
