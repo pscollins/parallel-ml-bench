@@ -17,7 +17,12 @@ struct
   fun hull pts =
     let
       fun pt i = ASeq.nth pts i
-      fun dist p q i = G.Point.triArea (p, q, pt i)
+      fun dist p q i = let
+         val distResult = G.Point.triArea (p, q, pt i)
+         val _ = MLton.Trace.sourceMarkValue (distResult, "distResult")
+      in
+         distResult
+      end
       fun max ((i, di), (j, dj)) =
         if di > dj then (i, di) else (j, dj)
       fun x i = #1 (pt i)
