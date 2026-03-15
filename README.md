@@ -172,3 +172,15 @@ POPL 2020.
 [Provably Space-Efficient Parallel Functional Programming](http://www.cs.cmu.edu/~swestric/21/popl.pdf).
 Jatin Arora, Sam Westrick, and Umut A. Acar.
 POPL 2021.
+
+## Local setup (pscollins)
+
+To fix errors about missing `mpllib` install, be sure to run the `./init`
+script. The `./init` script also generates input data under
+`/home/patrick/code/parallel-ml-bench/inputs/` that can be used to feed the programs.
+
+The `init` script will install `mpllib` via `smlpkg`; you'll need to make sure
+that `smlpkg` is in your `PATH`. On your local machine, this is:
+```
+$ source ~/code/quickhull-vs-parlay/prepare_env.sh
+```
