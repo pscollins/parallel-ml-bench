@@ -1,9 +1,11 @@
 (** SAM_NOTE: copy/pasted... some repetition here with Parse. *)
 structure ParseFile =
 struct
+  structure ArraySequence = PlainArraySequence
+  structure OldDelayedSeq = PlainArraySequence
 
   structure RF = ReadFile
-  structure Seq = ArraySequence
+  structure Seq = PlainArraySequence
   structure DS = OldDelayedSeq
 
   fun tokens (f: char -> bool) (cs: char Seq.t) : (char DS.t) DS.t =
@@ -134,7 +136,7 @@ struct
 
   fun readSequencePoint2d filename =
     let
-      val toks = tokens Char.isSpace (RF.contentsSeq filename)
+      val toks = tokens Char.isSpace (PlainArraySequence.fromArraySeq (RF.contentsSeq filename))
       fun tok i = DS.nth toks i
       val _ =
         if eqStr "pbbs_sequencePoint2d" (tok 0) then ()
@@ -155,7 +157,7 @@ struct
 
   fun readSequenceInt filename =
     let
-      val toks = tokens Char.isSpace (RF.contentsSeq filename)
+      val toks = tokens Char.isSpace (PlainArraySequence.fromArraySeq (RF.contentsSeq filename))
       fun tok i = DS.nth toks i
       val _ =
         if eqStr "pbbs_sequenceInt" (tok 0) then ()
@@ -172,7 +174,7 @@ struct
 
   fun readSequenceReal filename =
     let
-      val toks = tokens Char.isSpace (RF.contentsSeq filename)
+      val toks = tokens Char.isSpace (PlainArraySequence.fromArraySeq (RF.contentsSeq filename))
       fun tok i = DS.nth toks i
       val _ =
         if eqStr "pbbs_sequenceDouble" (tok 0) then ()

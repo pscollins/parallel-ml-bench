@@ -1,5 +1,8 @@
 structure CLA = CommandLineArgs
-structure Seq = ArraySequence
+structure PlainArraySequence = PlainArraySequence
+structure ArraySequence = PlainArraySequence
+structure OldDelayedSeq = PlainArraySequence
+structure Seq = PlainArraySequence
 
 structure Quickhull = MkQuickhull(OldDelayedSeq)
 

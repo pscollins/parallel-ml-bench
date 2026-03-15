@@ -1,7 +1,7 @@
 functor MkSplit (Seq: SEQUENCE) :
 sig
   type 'a seq = 'a Seq.t
-  type 'a aseq = 'a ArraySequence.t
+  type 'a aseq = 'a PlainArraySequence.t
 
   datatype flag = Left | Right | Throwaway
   val parSplit: 'a seq -> flag seq -> 'a aseq * 'a aseq
@@ -10,7 +10,7 @@ struct
 
   structure A = Array
   structure AS = ArraySlice
-  structure ASeq = ArraySequence
+  structure ASeq = PlainArraySequence
 
   type 'a seq = 'a Seq.t
   type 'a aseq = 'a ASeq.t

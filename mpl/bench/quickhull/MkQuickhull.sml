@@ -1,12 +1,12 @@
 functor MkQuickhull (Seq: SEQUENCE):
 sig
-  type 'a aseq = 'a ArraySequence.t
+  type 'a aseq = 'a PlainArraySequence.t
   val hull: (real * real) aseq -> int aseq
 end =
 struct
 
   structure AS = ArraySlice
-  structure ASeq = ArraySequence
+  structure ASeq = PlainArraySequence
   type 'a aseq = 'a ASeq.t
 
   structure G = Geometry2D
@@ -38,7 +38,7 @@ struct
             val rp = pt r
             fun d i = dist lp rp i
 
-            val idxs = Seq.fromArraySeq idxs
+            val idxs = Seq.fromArraySeq (ArraySlice.full idxs)
 
             val distances = Seq.map (fn i => (i, d i)) idxs
             val (mid, _) = Seq.reduce max (~1, Real.negInf) distances

@@ -1,5 +1,6 @@
 structure TreeSeq =
 struct
+  structure Seq = PlainArraySequence
   datatype 'a t =
     Leaf
   | Elem of 'a
@@ -42,7 +43,7 @@ struct
             end
     in
       put 0 t;
-      ArraySlice.full a
+      a
     end
 
   fun fromArraySeq a = Flat a

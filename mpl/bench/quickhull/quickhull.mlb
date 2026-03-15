@@ -1,4 +1,5 @@
 ../../lib.mlb
+PlainArraySequence.sml
 ParseFile.sml
 TreeSeq.sml
 
