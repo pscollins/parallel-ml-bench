@@ -17,7 +17,7 @@ struct
   fun hull pts =
     let
       fun pt i = ASeq.nth pts i
-      fun triArea ax ay bx by cx cy =
+      fun triArea ((ax, ay), (bx, by), (cx, cy)) =
           let
              val x1 = bx - ax
              val y1 = by - ay
@@ -27,6 +27,7 @@ struct
           in
              result
           end
+
       fun dist p q i = let
          val distResult = triArea (p, q, pt i)
          val _ = MLton.Trace.sourceMarkValue (distResult, "distResult")
