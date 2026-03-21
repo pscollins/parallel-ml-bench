@@ -1,17 +1,2 @@
 ../../lib.mlb
-TreeSeq.sml
-
-(*
-Split.sml
-Quickhull.sml
-*)
-
-
-local
-  MkPurishSplit.sml
-in
-  functor MkSplit = MkPurishSplit
-end
-MkQuickhull.sml
-
 main.sml

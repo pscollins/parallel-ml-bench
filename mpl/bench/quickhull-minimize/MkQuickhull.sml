@@ -1,14 +1,24 @@
 functor MkQuickhull (Seq: SEQUENCE):
 sig
-  type 'a aseq = 'a ArraySequence.t
-  val hull: (real * real) aseq -> int aseq
+  val hull: (real * real) ArraySequence.t -> int ArraySequence.t
 end =
 struct
 
   structure ASeq = ArraySequence
-  type 'a aseq = 'a ASeq.t
-  structure Tree = TreeSeq
-  structure Split = MkSplit (Seq)
+  
+  structure Tree = struct
+    datatype 'a t = Leaf | Node of 'a t * 'a t
+    fun append (t1, t2) = Node (t1, t2)
+    fun toArraySeq _ = ArraySlice.full (Array.fromList [])
+    fun fromArraySeq _ = Leaf
+    fun singleton _ = Leaf
+    val $ = singleton
+  end
+
+  structure Split = struct
+    datatype flag = Left | Right | Throwaway
+    fun parSplit s flags = (ArraySlice.full (Array.fromList []), ArraySlice.full (Array.fromList []))
+  end
 
   fun hull pts =
     let
@@ -51,7 +61,6 @@ struct
                          (Tree.append (Tree.$ mid, parHull right mid r)))
           end
 
-      val allIdx = Seq.tabulate (fn i => i) (ASeq.length pts)
       val l = 0
       val r = 0
       val lp = pt l
@@ -63,8 +72,9 @@ struct
            else if d < 0.0 then Split.Right
            else Split.Throwaway
         end
+      val idxsSeq = Seq.tabulate (fn i => i) (ASeq.length pts)
       val (above, below) =
-        Split.parSplit allIdx (Seq.force (Seq.map flag allIdx))
+        Split.parSplit idxsSeq (Seq.force (Seq.map flag idxsSeq))
 
       val (above, below) = ForkJoin.par
         (fn _ => parHull above l r,
