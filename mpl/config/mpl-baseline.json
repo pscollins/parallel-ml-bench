@@ -1,5 +1,5 @@
 {
     "compiler": "/home/patrick/code/mpl/build/bin/mpl",
-    "flags": ["-disable-pass", "preFlatten.*", "-verbose", "3"],
+    "flags": ["-disable-pass", "preFlatten.*"],
     "compat": "mpl"
 }
