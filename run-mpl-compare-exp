@@ -21,7 +21,7 @@ rm -f $ROOT/mpl/bin/*.bin
 # Get experiments for 'mpl'
 # We use a temporary file to avoid running gencmds twice
 TMP=$(mktemp)
-$GEN "$@" $ROOT/exp.json | jq -c "select(.config == \"mpl\" and (.bench == \"$TEST\" or .tag == \"$TEST\"))" > "$TMP"
+$GEN "$@" $ROOT/exp.json | jq -c "select(.config == \"mpl\" and (.bench == \"$TEST\" or .tag == \"$TEST\") and .exp == \"time\")" > "$TMP"
 
 if [ ! -s "$TMP" ]; then
   echo "[ERR] No experiments found for benchmark '$TEST'"
