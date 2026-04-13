@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -72,7 +72,7 @@ def safeInsert(dict, key, value):
   if key not in dict:
     dict[key] = value
   else:
-    sys.stderr.write("[WARN] Key {} is already in use; trying _{} instead.\n".format(key))
+    sys.stderr.write("[WARN] Key {} is already in use; trying _{} instead.\n".format(key, key))
     safeInsert(dict, "_" + key, value)
 
 def reCompile(exp):
@@ -448,7 +448,7 @@ def makeline(row, widths, align):
     elif aa == "r":
       ln = w + s
     elif aa == "c":
-      ln = w[:len(w)/2] + s + w[len(w)/2:]
+      ln = w[:len(w)//2] + s + w[len(w)//2:]
     else:
       raise ValueError("invalid formatter: {}".format(aa))
     bits.append(ln)
@@ -472,8 +472,8 @@ def table(rows, align=None):
       # rw = len(stripANSI(str(row[i])))
       # rw = len(str(row[i]))
       rw = len(row[i])
-      for k in xrange(i, j):
-        w = (rw / (j-i)) + (1 if k < rw % (j-i) else 0)
+      for k in range(i, j):
+        w = (rw // (j-i)) + (1 if k < rw % (j-i) else 0)
         widths[k] = max(widths[k], w)
       i = j
 
@@ -1231,7 +1231,7 @@ def speedupPlot(outputName, tagsSortedBySpeedups, tagsSortedByName):
   for tag in tagsSortedByName:
     try:
       baseline = averageTime(D, 'mlton', tag, 1)
-      speedups = map((lambda p: getspeedup(tag, p)), procs)
+      speedups = list(map((lambda p: getspeedup(tag, p)), procs))
 
       i = tagsSortedBySpeedups.index(tag)
       ci = i % len(colors)
@@ -1273,7 +1273,7 @@ def speedupPlot(outputName, tagsSortedBySpeedups, tagsSortedByName):
   # set legend position
   matplotlib.rcParams['legend.loc'] = 'upper left'
 
-  ticks = [1] + range(10, maxp+1, 10)
+  ticks = [1] + list(range(10, maxp+1, 10))
 
   plt.xlabel('Processors', fontsize=fontSize)
   plt.ylabel('Speedup', fontsize=fontSize)
@@ -1288,7 +1288,7 @@ def speedupPlot(outputName, tagsSortedBySpeedups, tagsSortedByName):
   if True:
     plt.legend(
       [b[0] for b in lines],
-      map(displayTag, tagsSortedByName),
+      list(map(displayTag, tagsSortedByName)),
       # bbox_to_anchor=(-0.16,1.05),
       # loc='upper right',
       bbox_to_anchor=(-0.1,1.01),
@@ -1318,7 +1318,13 @@ def getspeedup(tag, p):
     sys.stderr.write('[WARN] error while plotting speedup for {} at P={}: {}\n'.format(tag, p, e))
     return None
 
-sortedBySpeedups = sorted(speedupTags, key=(lambda tag: 1.0/getspeedup(tag, maxp)))
+def sort_key(tag):
+  gs = getspeedup(tag, maxp)
+  if gs is None or gs == 0.0:
+    return float('inf')
+  return 1.0 / gs
+
+sortedBySpeedups = sorted(speedupTags, key=sort_key)
 
 groupA = sortedBySpeedups[::2]
 groupB = sortedBySpeedups[1::2]
