@@ -116,8 +116,6 @@ statsPatterns = \
   ]
 
 def renameConfig(c):
-  if c == "mlton":
-    return "mpl-baseline"
   return c
 
 def renameTag(t):
