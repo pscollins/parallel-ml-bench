@@ -1,0 +1,42 @@
+#!/bin/bash
+# set -x
+if [ -z "$1" ]; then
+  echo "Usage: $0 [TEST] [GENCMS_ARGS]"
+  exit 1
+fi
+
+TEST=$1
+shift
+
+ROOT=$(git rev-parse --show-toplevel)
+GEN=scripts/gencmds
+RUN=scripts/runcmds
+
+NOW=$(date '+%y%m%d-%H%M%S')
+mkdir -p $ROOT/results
+RESULTS=$ROOT/results/$NOW
+
+rm -f $ROOT/mpl/bin/*.bin
+
+# Get experiments for 'mpl'
+# We use a temporary file to avoid running gencmds twice
+TMP=$(mktemp)
+$GEN "$@" $ROOT/exp.json | jq -c "select(.config == \"mpl\" and (.bench == \"$TEST\" or .tag == \"$TEST\"))" > "$TMP"
+
+if [ ! -s "$TMP" ]; then
+  echo "[ERR] No experiments found for benchmark '$TEST'"
+  rm "$TMP"
+  exit 1
+fi
+
+# Run experiments for both 'mpl' and 'mpl-baseline'
+# We take the 'mpl' experiments and also generate 'mpl-baseline' experiments
+# by changing the config name and binary name in the command string.
+( \
+  cat "$TMP"; \
+  jq -c '.config = "mpl-baseline" | .cmd |= sub("\\.mpl\\.bin"; ".mpl-baseline.bin")' "$TMP" \
+) | $RUN --compile --output $RESULTS
+
+rm "$TMP"
+
+echo "[INFO] wrote results to $RESULTS"
