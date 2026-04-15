@@ -5,6 +5,7 @@ DUMP_IR_FLAGS=-keep-pass-out-dir "bin/" -keep-pass '.*'
 DIAGNOSTIC_FLAGS=-keep-pass-out-dir "bin/" -diag-pass '.*' -keep-pass '.*'
 PROFILE_ONLY_FLAGS=-keep g -cc-opt '-g2' -link-opt '-lprofiler'
 PROFILE_FLAGS=$(DIAGNOSTIC_FLAGS) $(PROFILE_ONLY_FLAGS)
+EXTRA_FLAGS=-chunkify one
 
 .PHONY: all clean realclean phony
 
