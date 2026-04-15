@@ -9,7 +9,7 @@ default:
 	@echo "usage: make <bench>.<config>.bin"
 
 clean:
-	rm -f bin/*.bin* bin/*.log bin/*.c bin/*.s
+	rm -f bin/*
 
 phony:
 
@@ -30,4 +30,4 @@ phony:
 		--config $(shell echo $* | cut -d. -f2) \
 		--output "bin/$@" \
 		--verbose \
-		-- $(DEFAULT_FLAGS) $(EXTRA_FLAGS)
+		-- $(DEFAULT_FLAGS) $(EXTRA_FLAGS) $(DUMP_IR_FLAGS)
