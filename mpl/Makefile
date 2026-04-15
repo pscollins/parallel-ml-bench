@@ -1,6 +1,7 @@
 -include Makefile.config
 
 DEFAULT_FLAGS?=-default-type int64 -default-type word64
+EXTRA_FLAGS=-pre-flatten-max-iters 5
 
 .PHONY: all clean realclean phony
 
