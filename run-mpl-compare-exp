@@ -21,6 +21,7 @@ rm -f $ROOT/mpl/bin/*.bin
 # Get experiments for 'mpl'
 # We use a temporary file to avoid running gencmds twice
 TMP=$(mktemp)
+# Only run single-threaded time tests
 $GEN "$@" $ROOT/exp-small.json | jq -c "select(.config == \"mpl\" and (.bench == \"$TEST\" or .tag == \"$TEST\") and .exp == \"time\")" > "$TMP"
 
 if [ ! -s "$TMP" ]; then
