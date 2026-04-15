@@ -15,7 +15,7 @@ def ensureFigDir():
 
 def getGitRoot():
   return subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
-    stdout=subprocess.PIPE).communicate()[0].rstrip()
+    stdout=subprocess.PIPE, text=True).communicate()[0].rstrip()
 
 ROOT = getGitRoot()
 
@@ -499,15 +499,27 @@ def table(rows, align=None):
 # =========================================================================
 
 def mostRecentResultsFile(suffix=""):
-  files = os.listdir(os.path.join(ROOT, "results"))
+  resultsDir = os.path.join(ROOT, "results")
+  files = os.listdir(resultsDir)
   pattern = r'\d{6}-\d{6}'
   if suffix != "":
     pattern = pattern + "-" + suffix + "$"
   else:
     pattern = pattern + "$"
+  
+  candidates = []
+  for p in files:
+    if re.match(pattern, p):
+      path = os.path.join(resultsDir, p)
+      if os.path.isfile(path) and os.path.getsize(path) > 0:
+        candidates.append(p)
+
+  if not candidates:
+    raise ValueError("no candidates found")
+
   # A bit of a hack. Filenames are ...YYMMDD-hhmmss, so lexicographic string
   # comparison is correct for finding the most recent (i.e. maximum) file
-  mostRecent = max(p for p in files if re.match(pattern, p))
+  mostRecent = max(candidates)
   return mostRecent
 
 if args.input_file:

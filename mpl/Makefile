@@ -1,6 +1,7 @@
 -include Makefile.config
 
 DEFAULT_FLAGS?=-default-type int64 -default-type word64
+DUMP_IR_FLAGS=-keep-pass-out-dir "bin/" -keep-pass '.*'
 
 .PHONY: all clean realclean phony
 
@@ -13,6 +14,16 @@ clean:
 phony:
 
 %.bin: phony
+	@mkdir -p bin
+	@./scripts/compile.py \
+		--benchmark $(shell echo $* | cut -d. -f1) \
+		--config $(shell echo $* | cut -d. -f2) \
+		--output "bin/$@" \
+		--verbose \
+		-- $(DEFAULT_FLAGS) $(EXTRA_FLAGS)
+
+
+%.dump_ir.bin: phony
 	@mkdir -p bin
 	@./scripts/compile.py \
 		--benchmark $(shell echo $* | cut -d. -f1) \
