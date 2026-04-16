@@ -690,16 +690,16 @@ def defaultAlign(i):
 # MPL vs MPL-Baseline Comparison
 # ============================================================================
 
-headers = ['', 'T(1)', None, None, 'T({})'.format(maxp), None, None, 'R(1)', None, None, 'R({})'.format(maxp), None, None]
-headers1 = ['Benchmark', 'B', 'M', 'M/B', 'B', 'M', 'M/B', 'B', 'M', 'M/B', 'B', 'M', 'M/B']
-tt = [headers, "-", headers1, "="]
-
 cmpTags = sorted([
   tag for tag in orderedTags
   if (averageTime(D, 'mpl', tag, maxp) is not None)
   and tag not in sandmarkTags
 ], key=displayTag)
 
+has_parallel = maxp > 1
+has_space = False
+
+all_results = []
 for tag in cmpTags:
   bt1_avg, bt1_std = averageTimeWithStdDev(D, 'mpl-baseline', tag, 1)
   btp_avg, btp_std = averageTimeWithStdDev(D, 'mpl-baseline', tag, maxp)
@@ -711,20 +711,74 @@ for tag in cmpTags:
   mr1 = spg(averageSpace(D, 'mpl', tag, 1))
   mrp = spg(averageSpace(D, 'mpl', tag, maxp))
 
+  if any(x is not None for x in [br1, brp, mr1, mrp]):
+    has_space = True
+
+  all_results.append({
+    'tag': tag,
+    'bt1': (bt1_avg, bt1_std),
+    'btp': (btp_avg, btp_std),
+    'br1': br1,
+    'brp': brp,
+    'mt1': (mt1_avg, mt1_std),
+    'mtp': (mtp_avg, mtp_std),
+    'mr1': mr1,
+    'mrp': mrp
+  })
+
+headers = ['']
+headers1 = ['Benchmark']
+
+headers += ['T(1)', None, None]
+headers1 += ['B', 'M', 'M/B']
+
+if has_parallel:
+  headers += ['T({})'.format(maxp), None, None]
+  headers1 += ['B', 'M', 'M/B']
+
+if has_space:
+  headers += ['R(1)', None, None]
+  headers1 += ['B', 'M', 'M/B']
+  if has_parallel:
+    headers += ['R({})'.format(maxp), None, None]
+    headers1 += ['B', 'M', 'M/B']
+
+tt = [headers, "-", headers1, "="]
+
+for res in all_results:
+  tag = res['tag']
+  bt1_avg, bt1_std = res['bt1']
+  btp_avg, btp_std = res['btp']
+  br1 = res['br1']
+  brp = res['brp']
+  mt1_avg, mt1_std = res['mt1']
+  mtp_avg, mtp_std = res['mtp']
+  mr1 = res['mr1']
+  mrp = res['mrp']
+
   thisRow = [
     tm_std(bt1_avg, bt1_std),
     tm_std(mt1_avg, mt1_std),
-    ov(sd(mt1_avg, bt1_avg)),
-    tm_std(btp_avg, btp_std),
-    tm_std(mtp_avg, mtp_std),
-    ov(sd(mtp_avg, btp_avg)),
-    br1,
-    mr1,
-    ov(sd(mr1, br1)),
-    brp,
-    mrp,
-    ov(sd(mrp, brp))
+    ov(sd(mt1_avg, bt1_avg))
   ]
+  if has_parallel:
+    thisRow += [
+      tm_std(btp_avg, btp_std),
+      tm_std(mtp_avg, mtp_std),
+      ov(sd(mtp_avg, btp_avg))
+    ]
+  if has_space:
+    thisRow += [
+      br1,
+      mr1,
+      ov(sd(mr1, br1))
+    ]
+    if has_parallel:
+      thisRow += [
+        brp,
+        mrp,
+        ov(sd(mrp, brp))
+      ]
   thisRow = [displayTag(tag)] + [str(x) if x is not None else "--" for x in thisRow]
   tt.append(thisRow)
 
