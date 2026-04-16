@@ -215,6 +215,15 @@ def ratioStats(times_m, times_b):
   ratios = [times_m[i] / times_b[i] for i in range(n)]
   return np.mean(ratios), (np.std(ratios) if n > 1 else 0.0)
 
+def diffStats(times_m, times_b):
+  if not times_m or not times_b:
+    return None, None
+  n = min(len(times_m), len(times_b))
+  if n == 0:
+    return None, None
+  diffs = [times_m[i] - times_b[i] for i in range(n)]
+  return np.mean(diffs), (np.std(diffs) if n > 1 else 0.0)
+
 def averageSpace(data, config, tag, procs, checkExpType=True):
   trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or r['exp'] == 'space' ]
   sp = [ r['space'] for r in trials if 'space' in r ]
@@ -766,19 +775,19 @@ for tag in cmpTags:
 headers = ['']
 headers1 = ['Benchmark']
 
-headers += ['T(1)', None, None]
-headers1 += ['B', 'M', 'M/B']
+headers += ['T(1)', None, None, None]
+headers1 += ['B', 'M', 'M/B', 'M-B']
 
 if has_parallel:
-  headers += ['T({})'.format(maxp), None, None]
-  headers1 += ['B', 'M', 'M/B']
+  headers += ['T({})'.format(maxp), None, None, None]
+  headers1 += ['B', 'M', 'M/B', 'M-B']
 
 if has_space:
-  headers += ['R(1)', None, None]
-  headers1 += ['B', 'M', 'M/B']
+  headers += ['R(1)', None, None, None]
+  headers1 += ['B', 'M', 'M/B', 'M-B']
   if has_parallel:
-    headers += ['R({})'.format(maxp), None, None]
-    headers1 += ['B', 'M', 'M/B']
+    headers += ['R({})'.format(maxp), None, None, None]
+    headers1 += ['B', 'M', 'M/B', 'M-B']
 
 tt = [headers, "-", headers1, "="]
 
@@ -796,25 +805,29 @@ for res in all_results:
   thisRow = [
     tm_std(bt1_avg, bt1_std),
     tm_std(mt1_avg, mt1_std),
-    tm_std(*ratioStats(res['mt1_times'], res['bt1_times']))
+    tm_std(*ratioStats(res['mt1_times'], res['bt1_times'])),
+    tm_std(*diffStats(res['mt1_times'], res['bt1_times']))
   ]
   if has_parallel:
     thisRow += [
       tm_std(btp_avg, btp_std),
       tm_std(mtp_avg, mtp_std),
-      tm_std(*ratioStats(res['mtp_times'], res['btp_times']))
+      tm_std(*ratioStats(res['mtp_times'], res['btp_times'])),
+      tm_std(*diffStats(res['mtp_times'], res['btp_times']))
     ]
   if has_space:
     thisRow += [
       br1,
       mr1,
-      tm_std(*ratioStats(res['mr1_spaces'], res['br1_spaces']))
+      tm_std(*ratioStats(res['mr1_spaces'], res['br1_spaces'])),
+      tm_std(*[x/1000000.0 if x is not None else None for x in diffStats(res['mr1_spaces'], res['br1_spaces'])])
     ]
     if has_parallel:
       thisRow += [
         brp,
         mrp,
-        tm_std(*ratioStats(res['mrp_spaces'], res['brp_spaces']))
+        tm_std(*ratioStats(res['mrp_spaces'], res['brp_spaces'])),
+        tm_std(*[x/1000000.0 if x is not None else None for x in diffStats(res['mrp_spaces'], res['brp_spaces'])])
       ]
   thisRow = [displayTag(tag)] + [str(x) if x is not None else "--" for x in thisRow]
   tt.append(thisRow)
