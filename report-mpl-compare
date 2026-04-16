@@ -102,6 +102,7 @@ statsPatterns = \
     ("space", parseKiB, reCompile(r"^\s*Maximum resident set size \(kbytes\): (\d+).*$"))
   , ("approx-race-factor", parseB, reCompile(r"^entangled bytes: (\d+).*$"))
   , ("kbytes-pinned-entangled", parseB, reCompile(r"^bytes pinned entangled: (\d+).*$"))
+  , ("stddev", float, reCompile(r"^std dev\s+(\d+\.\d+).*$"))
   # , ("num-local", int, reCompile(r"^num local: (\d+)$"))
   # , ("local-reclaimed", parseB, reCompile(r"^local reclaimed: (\d+)$"))
   # , ("local-time", int, reCompile(r"^local gc time: (\d+)$"))
@@ -151,6 +152,8 @@ def parseStats(row):
   tms = parseTimes(allOutput)
   try:
     newRow['avgtime'] = sum(tms) / len(tms)
+    if 'stddev' not in newRow and len(tms) > 1:
+      newRow['stddev'] = np.std(tms)
   except:
     newRow['avgtime'] = None
 
@@ -187,6 +190,13 @@ def averageTime(data, config, tag, procs, checkExpType=True):
     return tms[-1]
   except:
     return None
+
+def averageTimeWithStdDev(data, config, tag, procs, checkExpType=True):
+  trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or (r['exp'] == 'time') ]
+  if not trials:
+    return None, None
+  r = trials[-1]
+  return r.get('avgtime'), r.get('stddev')
 
 def averageSpace(data, config, tag, procs, checkExpType=True):
   trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or r['exp'] == 'space' ]
@@ -228,6 +238,17 @@ def tm(t):
   except TypeError:
     print ("[ERR] Got type error trying to round {}".format(repr(t)))
     return None
+
+def tm_std(t, s):
+  if t is None:
+    return "--"
+  t_val = tm(t)
+  if t_val is None: return "--"
+  if s is not None:
+    s_val = tm(s)
+    if s_val is not None and s_val > 0:
+      return "{} (\u00b1 {})".format(t_val, s_val)
+  return str(t_val)
 
 def ov(x):
   if x is None:
@@ -680,23 +701,23 @@ cmpTags = sorted([
 ], key=displayTag)
 
 for tag in cmpTags:
-  bt1 = tm(averageTime(D, 'mpl-baseline', tag, 1))
-  btp = tm(averageTime(D, 'mpl-baseline', tag, maxp))
+  bt1_avg, bt1_std = averageTimeWithStdDev(D, 'mpl-baseline', tag, 1)
+  btp_avg, btp_std = averageTimeWithStdDev(D, 'mpl-baseline', tag, maxp)
   br1 = spg(averageSpace(D, 'mpl-baseline', tag, 1))
   brp = spg(averageSpace(D, 'mpl-baseline', tag, maxp))
 
-  mt1 = tm(averageTime(D, 'mpl', tag, 1))
-  mtp = tm(averageTime(D, 'mpl', tag, maxp))
+  mt1_avg, mt1_std = averageTimeWithStdDev(D, 'mpl', tag, 1)
+  mtp_avg, mtp_std = averageTimeWithStdDev(D, 'mpl', tag, maxp)
   mr1 = spg(averageSpace(D, 'mpl', tag, 1))
   mrp = spg(averageSpace(D, 'mpl', tag, maxp))
 
   thisRow = [
-    bt1,
-    mt1,
-    ov(sd(mt1, bt1)),
-    btp,
-    mtp,
-    ov(sd(mtp, btp)),
+    tm_std(bt1_avg, bt1_std),
+    tm_std(mt1_avg, mt1_std),
+    ov(sd(mt1_avg, bt1_avg)),
+    tm_std(btp_avg, btp_std),
+    tm_std(mtp_avg, mtp_std),
+    ov(sd(mtp_avg, btp_avg)),
     br1,
     mr1,
     ov(sd(mr1, br1)),
