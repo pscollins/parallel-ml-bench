@@ -151,11 +151,13 @@ def parseStats(row):
 
   tms = parseTimes(allOutput)
   try:
+    newRow['times'] = tms
     newRow['avgtime'] = sum(tms) / len(tms)
     if 'stddev' not in newRow and len(tms) > 1:
       newRow['stddev'] = np.std(tms)
   except:
     newRow['avgtime'] = None
+    newRow['times'] = []
 
   # try:
   #   newRow['space'] = float(newRow['space'])
@@ -191,12 +193,27 @@ def averageTime(data, config, tag, procs, checkExpType=True):
   except:
     return None
 
+def averageTimes(data, config, tag, procs, checkExpType=True):
+  trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or (r['exp'] == 'time') ]
+  if not trials:
+    return []
+  return trials[-1].get('times', [])
+
 def averageTimeWithStdDev(data, config, tag, procs, checkExpType=True):
   trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or (r['exp'] == 'time') ]
   if not trials:
     return None, None
   r = trials[-1]
   return r.get('avgtime'), r.get('stddev')
+
+def ratioStats(times_m, times_b):
+  if not times_m or not times_b:
+    return None, None
+  n = min(len(times_m), len(times_b))
+  if n == 0:
+    return None, None
+  ratios = [times_m[i] / times_b[i] for i in range(n)]
+  return np.mean(ratios), (np.std(ratios) if n > 1 else 0.0)
 
 def averageSpace(data, config, tag, procs, checkExpType=True):
   trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or r['exp'] == 'space' ]
@@ -208,6 +225,10 @@ def averageSpace(data, config, tag, procs, checkExpType=True):
     return sum(sp) / len(sp)
   except:
     return None
+
+def averageSpaces(data, config, tag, procs, checkExpType=True):
+  trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or r['exp'] == 'space' ]
+  return [ r['space'] for r in trials if 'space' in r ]
 
 def approxRaceFactor(data, config, tag, procs):
   trials = [r for r in findTrials(data, config, tag, procs) if r['exp'] == 'stats' ]
@@ -702,14 +723,22 @@ has_space = False
 all_results = []
 for tag in cmpTags:
   bt1_avg, bt1_std = averageTimeWithStdDev(D, 'mpl-baseline', tag, 1)
+  bt1_times = averageTimes(D, 'mpl-baseline', tag, 1)
   btp_avg, btp_std = averageTimeWithStdDev(D, 'mpl-baseline', tag, maxp)
+  btp_times = averageTimes(D, 'mpl-baseline', tag, maxp)
   br1 = spg(averageSpace(D, 'mpl-baseline', tag, 1))
+  br1_spaces = averageSpaces(D, 'mpl-baseline', tag, 1)
   brp = spg(averageSpace(D, 'mpl-baseline', tag, maxp))
+  brp_spaces = averageSpaces(D, 'mpl-baseline', tag, maxp)
 
   mt1_avg, mt1_std = averageTimeWithStdDev(D, 'mpl', tag, 1)
+  mt1_times = averageTimes(D, 'mpl', tag, 1)
   mtp_avg, mtp_std = averageTimeWithStdDev(D, 'mpl', tag, maxp)
+  mtp_times = averageTimes(D, 'mpl', tag, maxp)
   mr1 = spg(averageSpace(D, 'mpl', tag, 1))
+  mr1_spaces = averageSpaces(D, 'mpl', tag, 1)
   mrp = spg(averageSpace(D, 'mpl', tag, maxp))
+  mrp_spaces = averageSpaces(D, 'mpl', tag, maxp)
 
   if any(x is not None for x in [br1, brp, mr1, mrp]):
     has_space = True
@@ -717,13 +746,21 @@ for tag in cmpTags:
   all_results.append({
     'tag': tag,
     'bt1': (bt1_avg, bt1_std),
+    'bt1_times': bt1_times,
     'btp': (btp_avg, btp_std),
+    'btp_times': btp_times,
     'br1': br1,
+    'br1_spaces': br1_spaces,
     'brp': brp,
+    'brp_spaces': brp_spaces,
     'mt1': (mt1_avg, mt1_std),
+    'mt1_times': mt1_times,
     'mtp': (mtp_avg, mtp_std),
+    'mtp_times': mtp_times,
     'mr1': mr1,
-    'mrp': mrp
+    'mr1_spaces': mr1_spaces,
+    'mrp': mrp,
+    'mrp_spaces': mrp_spaces
   })
 
 headers = ['']
@@ -759,25 +796,25 @@ for res in all_results:
   thisRow = [
     tm_std(bt1_avg, bt1_std),
     tm_std(mt1_avg, mt1_std),
-    ov(sd(mt1_avg, bt1_avg))
+    tm_std(*ratioStats(res['mt1_times'], res['bt1_times']))
   ]
   if has_parallel:
     thisRow += [
       tm_std(btp_avg, btp_std),
       tm_std(mtp_avg, mtp_std),
-      ov(sd(mtp_avg, btp_avg))
+      tm_std(*ratioStats(res['mtp_times'], res['btp_times']))
     ]
   if has_space:
     thisRow += [
       br1,
       mr1,
-      ov(sd(mr1, br1))
+      tm_std(*ratioStats(res['mr1_spaces'], res['br1_spaces']))
     ]
     if has_parallel:
       thisRow += [
         brp,
         mrp,
-        ov(sd(mrp, brp))
+        tm_std(*ratioStats(res['mrp_spaces'], res['brp_spaces']))
       ]
   thisRow = [displayTag(tag)] + [str(x) if x is not None else "--" for x in thisRow]
   tt.append(thisRow)
@@ -798,34 +835,49 @@ bupRats = []
 ensureFigDir()
 mplBaselineCmpTable = "figures/mpl-baseline-comparison.tex"
 with open(mplBaselineCmpTable, 'w') as output:
-  for tag in cmpTags:
-    bt1 = tm(averageTime(D, 'mpl-baseline', tag, 1))
-    btp = tm(averageTime (D, 'mpl-baseline', tag, maxp))
-    br1 = spg(averageSpace(D, 'mpl-baseline', tag, 1))
-    brp = spg(averageSpace (D, 'mpl-baseline', tag, maxp))
+  for res in all_results:
+    tag = res['tag']
+    bt1_avg, _ = res['bt1']
+    bt1_times = res['bt1_times']
+    btp_avg, _ = res['btp']
+    btp_times = res['btp_times']
+    br1 = res['br1']
+    br1_spaces = res['br1_spaces']
+    mr1 = res['mr1']
+    mr1_spaces = res['mr1_spaces']
+    mt1_avg, _ = res['mt1']
+    mt1_times = res['mt1_times']
+    mtp_avg, _ = res['mtp']
+    mtp_times = res['mtp_times']
+    mrp = res['mrp']
+    mrp_spaces = res['mrp_spaces']
 
-    mt1 = tm(averageTime(D, 'mpl', tag, 1))
-    mtp = tm(averageTime (D, 'mpl', tag, maxp))
-    mr1 = spg(averageSpace(D, 'mpl', tag, 1))
-    mrp = spg(averageSpace (D, 'mpl', tag, maxp))
-
-    ovRats.append(ovv(sd(mt1, bt1)))
+    r1_avg, r1_std = ratioStats(mt1_times, bt1_times)
+    ovRats.append(r1_avg)
+    
     # Speedup relative to 1-core baseline
-    suRats.append(ovv(sd(bt1, mtp)))
-    bu1Rats.append(ovv(sd(mr1, br1)))
-    bupRats.append(ovv(sd(mrp, br1)))
+    # We still use ratio of averages for SU because they might have different run counts
+    # but let's see if we can do per-run if counts match.
+    su_avg, su_std = ratioStats(bt1_times, mtp_times)
+    suRats.append(su_avg)
+
+    bu1_avg, bu1_std = ratioStats(mr1_spaces, br1_spaces)
+    bu1Rats.append(bu1_avg)
+    
+    bup_avg, bup_std = ratioStats(mrp_spaces, br1_spaces)
+    bupRats.append(bup_avg)
 
     row = [
-      bt1,
-      mt1,
-      makeBold(fmt(ov(sd(mt1, bt1)))),
-      mtp,
-      makeBold(fmt(su(sd(bt1, mtp)))),
+      tm(bt1_avg),
+      tm(mt1_avg),
+      makeBold(tm_std(r1_avg, r1_std)),
+      tm(mtp_avg),
+      makeBold(tm_std(su_avg, su_std)),
       sfmt(br1),
       sfmt(mr1),
-      makeBold(fmt(bu(sd(mr1, br1)))),
+      makeBold(tm_std(bu1_avg, bu1_std)),
       sfmt(mrp),
-      makeBold(fmt(bu(sd(mrp, br1))))
+      makeBold(tm_std(bup_avg, bup_std))
     ]
 
     row = [ fmt(x) for x in row ]
