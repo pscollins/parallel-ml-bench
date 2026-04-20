@@ -1,6 +1,6 @@
 -include Makefile.config
 
-DEFAULT_FLAGS?=-default-type int64 -default-type word64
+DEFAULT_FLAGS?=-default-type int64 -default-type word64 -cc 'clang'
 DUMP_IR_FLAGS=-keep-pass-out-dir "bin/" -keep-pass '.*'
 DIAGNOSTIC_FLAGS=-keep-pass-out-dir "bin/" -diag-pass '.*' -keep-pass '.*'
 PROFILE_ONLY_FLAGS=-keep g -cc-opt '-g2' -link-opt '-lprofiler'
