@@ -770,19 +770,21 @@ for tag in cmpTags:
 headers = ['']
 headers1 = ['Benchmark']
 
+subheaders = ['B (± stddev)', 'M (± stddev)', 'M/B (± stddev)', 'M-B (± stddev)']
+
 headers += ['T(1)', None, None, None]
-headers1 += ['B', 'M', 'M/B', 'M-B']
+headers1 += subheaders
 
 if has_parallel:
   headers += ['T({})'.format(maxp), None, None, None]
-  headers1 += ['B', 'M', 'M/B', 'M-B']
+  headers1 += subheaders
 
 if has_space:
   headers += ['R(1)', None, None, None]
-  headers1 += ['B', 'M', 'M/B', 'M-B']
+  headers1 += subheaders
   if has_parallel:
     headers += ['R({})'.format(maxp), None, None, None]
-    headers1 += ['B', 'M', 'M/B', 'M-B']
+    headers1 += subheaders
 
 tt = [headers, "-", headers1, "="]
 
