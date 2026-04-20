@@ -832,6 +832,29 @@ print(table(tt, defaultAlign))
 print("")
 
 # ============================================================================
+# Summary Statistics
+# ============================================================================
+
+ratios = []
+for res in all_results:
+  times_m = res['mtp_times'] if has_parallel else res['mt1_times']
+  times_b = res['btp_times'] if has_parallel else res['bt1_times']
+  r, _ = ratioStats(times_m, times_b)
+  if r is not None:
+    ratios.append(r)
+
+if ratios:
+  log_ratios = np.log(ratios)
+  mean_log = np.mean(log_ratios)
+  std_log = np.std(log_ratios, ddof=1) if len(ratios) > 1 else 0
+  se_log = std_log / np.sqrt(len(ratios))
+  g = np.exp(mean_log)
+  ci_log = 1.96 * se_log
+  ci = g * (np.exp(ci_log) - np.exp(-ci_log)) / 2
+  print("Geomean M/B (± ci): {} (± {})".format(tm(g), tm(ci)))
+  print("")
+
+# ============================================================================
 # ============================================================================
 # ============================================================================
 print("[INFO] done reporting {}".format(timingsFile))
