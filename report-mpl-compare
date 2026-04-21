@@ -711,15 +711,28 @@ def defaultAlign(i):
 
 # ============================================================================
 
+def getTagsFromExp(filename):
+  try:
+    with open(os.path.join(ROOT, filename), 'r') as f:
+      exp = json.load(f)
+      tags = set()
+      for spec in exp.get('specs', []):
+        t = spec.get('tag')
+        if t is not None:
+          if isinstance(t, list): tags.update([x for x in t if x is not None])
+          else: tags.add(t)
+      return tags
+  except Exception as e:
+    sys.stderr.write("[WARN] could not read tags from {}: {}\n".format(filename, e))
+    return set()
+
+expSmallTags = getTagsFromExp('exp-small.json')
+
 # ============================================================================
 # MPL vs MPL-Baseline Comparison
 # ============================================================================
 
-cmpTags = sorted([
-  tag for tag in orderedTags
-  if (averageTime(D, 'mpl', tag, maxp) is not None)
-  and tag not in sandmarkTags
-], key=displayTag)
+cmpTags = sorted(list(set(orderedTags) | expSmallTags), key=displayTag)
 
 has_parallel = maxp > 1
 has_space = False
