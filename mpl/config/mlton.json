@@ -1,5 +1,5 @@
 {
     "compiler": "/home/patrick/code/mlton/build/bin/mlton",
-    "flags": ["-codegen", "c", "-chunkify one"],
+    "flags": ["-codegen", "c", "-chunkify", "one"],
     "compat": "mlton"
 }
