@@ -591,6 +591,10 @@ print("[INFO] reading {}\n".format(timingsFile))
 with open(timingsFile, 'r') as data:
   resultsData = json_careful_readlines(data)
 D = [ parseStats(row) for row in resultsData ]
+
+all_pairs = set((row['tag'], row['config']) for row in D)
+ignored = sorted([(t, c) for (t, c) in all_pairs if c != flavor and c != baseline_flavor])
+
 P = sorted(list(foundProcs))
 maxp = max(p for p in foundProcs if p <= 72)
 orderedTags = sorted(list(foundTags), key=displayTag)
@@ -875,6 +879,11 @@ if ratios:
   ci = g * (np.exp(ci_log) - np.exp(-ci_log)) / 2
   print("Geomean {}/{} (± ci): {} (± {})".format(FLAVOR_LETTER, BASELINE_LETTER, tm(g), tm(ci)))
   print("")
+
+if not ignored:
+  print("Ignored experiments: none")
+else:
+  print("Ignored experiments: " + ", ".join(["(\"{}\", \"{}\")".format(t, c) for t, c in ignored]))
 
 # ============================================================================
 # ============================================================================
