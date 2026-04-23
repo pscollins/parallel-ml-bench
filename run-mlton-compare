@@ -1,0 +1,30 @@
+#!/bin/bash
+
+ROOT=$(git rev-parse --show-toplevel)
+GEN=scripts/gencmds
+RUN=scripts/runcmds
+
+NOW=$(date '+%y%m%d-%H%M%S')
+mkdir -p $ROOT/results
+RESULTS=$ROOT/results/$NOW
+
+rm -f $ROOT/mpl/bin/*.bin
+
+# Get experiments for 'mlton'
+# We use a temporary file to avoid running gencmds twice
+TMP=$(mktemp)
+# Use `exp-small-mlton.json` to just run single-threaded time tests
+$GEN $@ $ROOT/exp-small-mlton.json | jq -c 'select(.config == "mpl")' > "$TMP"
+
+# Run experiments for both 'mlton' and 'mlton-baseline'
+# We take the 'mpl' experiments (from exp-small-mlton.json) and generate 
+# 'mlton' and 'mlton-baseline' experiments
+# by changing the config name and binary name in the command string.
+( \
+  jq -c '.config = "mlton" | .cmd |= sub("\\.mpl\\.bin"; ".mlton.bin")' "$TMP"; \
+  jq -c '.config = "mlton-baseline" | .cmd |= sub("\\.mpl\\.bin"; ".mlton-baseline.bin")' "$TMP" \
+) | $RUN --compile --output $RESULTS
+
+rm "$TMP"
+
+echo "[INFO] wrote results to $RESULTS"
