@@ -1,5 +1,5 @@
 {
     "compiler": "/home/patrick/code/mlton/build/bin/mlton",
-    "flags": ["-codegen", "c", "-polyvariance-small 100000", "-polyvariance-hofo false"],
+    "flags": ["-codegen", "c"],
     "compat": "mlton"
 }
