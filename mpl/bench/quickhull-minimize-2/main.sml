@@ -14,20 +14,19 @@ struct
              ax' + ay'
           end
 
-      fun parHull idxs n =
+      fun parHull idxs_seq n =
         if n <= 0 then ()
         else
           let
-            val idxs_seq = Seq.fromArraySeq idxs
             val p0 = pt 0
             val _ = Seq.force (Seq.map (fn i => dist p0 i) idxs_seq)
-            val _ = ForkJoin.par (fn _ => parHull idxs (n-1), fn _ => parHull idxs (n-1))
+            val _ = ForkJoin.par (fn _ => parHull idxs_seq (n-1), fn _ => parHull idxs_seq (n-1))
           in
             ()
           end
 
       val allIdx = Seq.tabulate (fn i => i) (ASeq.length pts)
-      val _ = parHull (Seq.toArraySeq allIdx) 1
+      val _ = parHull allIdx 1
     in
       ASeq.fromList [0]
     end
