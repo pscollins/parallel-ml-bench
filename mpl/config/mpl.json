@@ -1,5 +1,5 @@
 {
   "compiler": "/home/patrick/code/mpl/build/bin/mpl",
-    "flags": ["-disable-pass", "preFlatten.*", "-flatten-iters", "10"],
+    "flags": ["-disable-pass", "preFlatten.*", "-flatten-iters", "3"],
   "compat": "mpl"
 }
