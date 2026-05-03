@@ -6,7 +6,7 @@ DIAGNOSTIC_FLAGS=-keep-pass-out-dir "bin/" -diag-pass '.*' -keep-pass '.*'
 PROFILE_ONLY_FLAGS=-keep g -cc-opt '-g2' -link-opt '-lprofiler'
 PROFILE_FLAGS=$(DIAGNOSTIC_FLAGS) $(PROFILE_ONLY_FLAGS)
 # EXTRA_FLAGS=-chunkify func -pre-flatten-max-iters 10 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global
-EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 10 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink
+EXTRA_FLAGS=-pre-flatten-max-iters 10 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink
 # EXTRA_FLAGS=
 
 .PHONY: all clean realclean phony
