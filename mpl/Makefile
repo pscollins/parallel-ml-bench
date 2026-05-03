@@ -8,7 +8,7 @@ PROFILE_ONLY_FLAGS=-keep g -cc-opt '-g2' -link-opt '-lprofiler'
 PROFILE_FLAGS=$(DIAGNOSTIC_FLAGS) $(PROFILE_ONLY_FLAGS)
 # EXTRA_FLAGS=-chunkify func -pre-flatten-max-iters 10 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global
 # EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 1 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10
-EXTRA_FLAGS=-flatten-max-iters 1 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10
+EXTRA_FLAGS=-pre-flatten-max-iters 1 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10
 # EXTRA_FLAGS=
 
 .PHONY: all clean realclean phony
