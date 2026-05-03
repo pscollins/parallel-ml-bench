@@ -1,6 +1,7 @@
 MPL ?= $(HOME)/code/mpl/build/bin/mpl
 EXTRA_MPL_FLAGS ?= 
 MPL_FLAGS ?= -default-type int64 -default-type word64 -mlb-path-var 'COMPAT mpl' -pre-flatten-max-iters 4 -pre-flatten-post-steps 'shrink,flatten,shrink' -polyvariance-small 100000 -pre-flatten-types-policy any -pre-flatten-consumer-policy always -pre-flatten-recursive-steps 10
+# MPL_FLAGS ?= -mlb-path-var 'COMPAT mpl' -pre-flatten-max-iters 4 -pre-flatten-post-steps 'shrink,flatten,shrink' -polyvariance-small 100000 -pre-flatten-types-policy any -pre-flatten-consumer-policy always -pre-flatten-recursive-steps 10
 
 .PHONY: all clean run
 
