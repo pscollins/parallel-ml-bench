@@ -1,8 +1,8 @@
 -include Makefile.config
 
 DEFAULT_FLAGS?=-default-type int64 -default-type word64 -cc 'clang'
-DUMP_IR_FLAGS=-keep-pass-out-dir "bin/" -keep-pass '.*' -diag-pass '.*'
-DIAGNOSTIC_FLAGS=-keep-pass-out-dir "bin/" -diag-pass '.*' -keep-pass '.*'
+DUMP_IR_FLAGS=-keep-pass-out-dir "bin/" -keep-pass '.*'
+DIAGNOSTIC_FLAGS=-keep-pass-out-dir "bin/" -diag-pass '.*' -keep-pass '.*' -verbose 3
 PROFILE_ONLY_FLAGS=-keep g -cc-opt '-g2' -link-opt '-lprofiler'
 PROFILE_FLAGS=$(DIAGNOSTIC_FLAGS) $(PROFILE_ONLY_FLAGS)
 # EXTRA_FLAGS=-chunkify func -pre-flatten-max-iters 10 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global
