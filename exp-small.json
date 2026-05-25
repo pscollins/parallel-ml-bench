@@ -25,21 +25,6 @@
         "args": ["-N 100000000"]
       },
       {
-        "tag": ["dense-matmul"],
-        "bench": ["dense-matmul"],
-        "args": ["-N 1024"]
-      },
-      {
-        "tag": ["raytracer"],
-        "bench": ["raytracer"],
-        "args": ["-n 1000 -m 1000"]
-      },
-      {
-        "tag": ["tinykaboom"],
-        "bench": ["tinykaboom"],
-        "args": ["-width 100 -height 100 -frames 10 -fps 1"]
-      },
-      {
         "tag": ["game-of-life"],
         "bench": ["ocaml-game-of-life"],
         "args": ["-n_times 100 -board_size 1024"]
@@ -55,19 +40,9 @@
         "args": ["-N 20000000"]
       },
       {
-        "tag": ["nearest-nbrs"],
-        "bench": ["nearest-nbrs"],
-        "args": ["-input ../inputs/uniform-circle-1M"]
-      },
-      {
         "tag": ["quickhull"],
         "bench": ["quickhull"],
         "args": ["-infile ../inputs/uniform-circle-20M"]
-      },
-      {
-        "tag": ["reverb"],
-        "bench": ["reverb"],
-        "args": ["../inputs/mangore-waltz.wav"]
       },
       {
         "tag": ["seam-carve"],
@@ -105,11 +80,6 @@
         "args": ["../inputs/rmat-10M-symm-bin"]
       },
       {
-        "tag": ["max-indep-set"],
-        "bench": ["max-indep-set"],
-        "args": ["../inputs/rmat-10M-symm-bin"]
-      },
-      {
         "tag": ["palindrome"],
         "bench": ["palindrome"],
         "args": ["-N 1000000"]
@@ -125,19 +95,9 @@
         "args": ["-N 13"]
       },
       {
-        "tag": ["triangle-count"],
-        "bench": ["triangle-count"],
-        "args": ["../inputs/rmat-1M-symm-bin"]
-      },
-      {
         "tag": ["range-query"],
         "bench": ["range-tree"],
         "args": ["-n 1000000 -q 1000000"]
-      },
-      {
-        "tag": ["delaunay"],
-        "bench": ["delaunay"],
-        "args": ["-input ../inputs/uniform-circle-1M"]
       },
       {
         "tag": ["linefit"],
@@ -158,11 +118,6 @@
         "tag": ["integrate"],
         "bench": ["integrate-opt"],
         "args": ["-n 500000000"]
-      },
-      {
-        "tag": ["sparse-mxv"],
-        "bench": ["sparse-mxv-opt"],
-        "args": ["-n 200000000"]
       },
       {
         "tag": ["wc"],
@@ -193,6 +148,54 @@
         "tag": ["binarytrees5"],
         "bench": ["ocaml-binarytrees5"],
         "args": ["-max_depth 19"]
+      }
+    ],
+  "disabled-specs":
+    [
+      {
+        "tag": ["sparse-mxv"],
+        "bench": ["sparse-mxv-opt"],
+        "args": ["-n 200000000"]
+      },
+      {
+        "tag": ["triangle-count"],
+        "bench": ["triangle-count"],
+        "args": ["../inputs/rmat-1M-symm-bin"]
+      },
+      {
+        "tag": ["delaunay"],
+        "bench": ["delaunay"],
+        "args": ["-input ../inputs/uniform-circle-1M"]
+      },
+      {
+        "tag": ["dense-matmul"],
+        "bench": ["dense-matmul"],
+        "args": ["-N 1024"]
+      },
+      {
+        "tag": ["max-indep-set"],
+        "bench": ["max-indep-set"],
+        "args": ["../inputs/rmat-10M-symm-bin"]
+      },
+      {
+        "tag": ["nearest-nbrs"],
+        "bench": ["nearest-nbrs"],
+        "args": ["-input ../inputs/uniform-circle-1M"]
+      },
+      {
+        "tag": ["raytracer"],
+        "bench": ["raytracer"],
+        "args": ["-n 1000 -m 1000"]
+      },
+      {
+        "tag": ["tinykaboom"],
+        "bench": ["tinykaboom"],
+        "args": ["-width 100 -height 100 -frames 10 -fps 1"]
+      },
+      {
+        "tag": ["reverb"],
+        "bench": ["reverb"],
+        "args": ["../inputs/mangore-waltz.wav"]
       }
     ]
 }
