@@ -10,7 +10,7 @@ PROFILE_FLAGS=$(DIAGNOSTIC_FLAGS) $(PROFILE_ONLY_FLAGS)
 # EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 1 -pre-flatten-consumer-policy always -pre-flatten-resolve-policy global -pre-flatten-types-policy any -max-type-print-depth 2 -mlb-path-var 'COMPAT mpl'   -pre-flatten-post-steps shrink,flatten,shrink  -pre-flatten-recursive-steps 10
 # EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 0 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10 -shallow-flatten-policy maxWidth:3
 # EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 0 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10 -shallow-flatten-policy maxWidth:3 -type-check true
-EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 0 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10 -shallow-flatten-policy maxWidth:3
+EXTRA_FLAGS=-chunkify one -pre-flatten-max-iters 0 -pre-flatten-consumer-policy all_unpack -pre-flatten-resolve-policy global -pre-flatten-types-policy con -pre-flatten-post-steps shrink,flatten,shrink -pre-flatten-recursive-steps 10 -shallow-flatten-policy maxWidth:64
 # EXTRA_FLAGS=
 
 .PHONY: all clean realclean phony
