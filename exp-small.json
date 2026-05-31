@@ -148,10 +148,7 @@
         "tag": ["binarytrees5"],
         "bench": ["ocaml-binarytrees5"],
         "args": ["-max_depth 19"]
-      }
-    ],
-  "disabled-specs":
-    [
+      },
       {
         "tag": ["sparse-mxv"],
         "bench": ["sparse-mxv-opt"],
