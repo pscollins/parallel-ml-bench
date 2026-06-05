@@ -5,7 +5,7 @@
               "-pre-flatten-consumer-policy", "all_unpack",
               "-pre-flatten-resolve-policy", "global",
               "-pre-flatten-recursive-steps", "10",
-              "-pre-flatten-types-policy", "con"
+              "-pre-flatten-types-policy", "tuple"
              ],
     "compat": "mlton"
 }
