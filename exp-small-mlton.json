@@ -55,6 +55,11 @@
         "args": ["-N 20000000"]
       },
       {
+        "tag": ["quickhull"],
+        "bench": ["quickhull"],
+        "args": ["-infile ../inputs/uniform-circle-20M"]
+      },
+      {
         "tag": ["nearest-nbrs"],
         "bench": ["nearest-nbrs"],
         "args": ["-input ../inputs/uniform-circle-1M"]

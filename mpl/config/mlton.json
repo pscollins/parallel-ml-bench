@@ -1,5 +1,5 @@
 {
     "compiler": "/home/pscollins/code/mlton/build/bin/mlton",
-    "flags": ["-codegen", "c"],
+    "flags": ["-codegen", "c", "-shallow-flatten-max-iters", "1"],
     "compat": "mlton"
 }

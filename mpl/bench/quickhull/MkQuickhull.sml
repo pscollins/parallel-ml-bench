@@ -30,7 +30,7 @@ struct
 
       fun dist pts p q i = let
          val distResult = triArea (p, q, ASeq.nth pts i)
-         val _ = MLton.Trace.sourceMarkValue (distResult, "distResult")
+         (* val _ = MLton.Trace.sourceMarkValue (distResult, "distResult") *)
       in
          distResult
       end
@@ -51,7 +51,7 @@ struct
                val p = ASeq.nth pts l
                val q = ASeq.nth pts r
                val distResult = triArea (p, q, ASeq.nth pts i)
-               val _ = MLton.Trace.sourceMarkValue (distResult, "distResult2")
+               (* val _ = MLton.Trace.sourceMarkValue (distResult, "distResult2") *)
             in
                distResult
             end
