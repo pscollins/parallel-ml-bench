@@ -1,11 +1,12 @@
 {
     "compiler": "/home/pscollins/code/mlton/build/bin/mlton",
     "flags": ["-codegen", "c",
+              "-shallow-flatten-max-iters", "1",
               "-pre-flatten-max-iters", "1",
               "-pre-flatten-consumer-policy", "all_unpack",
               "-pre-flatten-resolve-policy", "global",
               "-pre-flatten-recursive-steps", "10",
-              "-pre-flatten-types-policy", "tuple"
+              "-pre-flatten-types-policy", "con"
              ],
     "compat": "mlton"
 }
