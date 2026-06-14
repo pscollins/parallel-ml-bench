@@ -1,5 +1,8 @@
 {
     "compiler": "/home/pscollins/code/mpl/build/bin/mpl",
-    "flags": ["-disable-pass", "(preFlatten|shallowFlatten).*"],
+    "flags": ["-pre-flatten-max-iters", "0",
+              "-shallow-flatten-max-iters", "1",
+              "-shallow-flatten-mechanism", "soa",
+              "-shallow-flatten-policy", "maxWidthSameType:3"],
     "compat": "mpl"
 }
