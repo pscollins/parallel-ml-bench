@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, signal, socket, time, threading, subprocess, multiprocessing, os
+import sys, signal, socket, time, threading, subprocess, multiprocessing, os, hashlib, re
 from datetime import datetime
 
 NCPU = multiprocessing.cpu_count()
@@ -8,6 +8,26 @@ NCPU = multiprocessing.cpu_count()
 def getGitRoot():
   return subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
     stdout=subprocess.PIPE, text=True).communicate()[0].rstrip()
+
+def _get_binary_info(root, row):
+  prefix = root
+  if 'cwd' in row:
+    prefix = os.path.join(prefix, row['cwd'])
+
+  match = re.search(r'(?:^|\s)(bin/\S+\.bin)', row.get('cmd', ''))
+  if match:
+    bin_path = os.path.join(prefix, match.group(1))
+  else:
+    bin_path = os.path.join(prefix, 'bin', '{}.{}.bin'.format(row.get('bench', ''), row.get('config', '')))
+
+  if os.path.isfile(bin_path):
+    size_bytes = os.path.getsize(bin_path)
+    hasher = hashlib.md5()
+    with open(bin_path, 'rb') as f:
+      for chunk in iter(lambda: f.read(65536), b''):
+        hasher.update(chunk)
+    return size_bytes, hasher.hexdigest()
+  return None, None
 
 _currentChildren = []
 
@@ -34,6 +54,7 @@ def _killer():
 
 def runcmds(rows, timeout=600.0, silent=False):
   global _currentChildren
+  root = getGitRoot()
   numCmds = sum(int(row.get('trials', '1')) for row in rows)
   cmdNum = 0
 
@@ -80,6 +101,11 @@ def runcmds(rows, timeout=600.0, silent=False):
         row['returncode{}'.format(i)] = _currentChildren[i].returncode
 
       _currentChildren = []
+
+      size_bytes, md5_checksum = _get_binary_info(root, row)
+      if size_bytes is not None:
+        row['binary_bytes'] = size_bytes
+        row['binary_md5'] = md5_checksum
 
       yield row
 
