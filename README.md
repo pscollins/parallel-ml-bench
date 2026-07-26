@@ -184,3 +184,15 @@ that `smlpkg` is in your `PATH`. On your local machine, this is:
 ```
 $ source ~/code/quickhull-vs-parlay/prepare_env.sh
 ```
+
+# Environment setup
+
+Set up the `venv`:
+```
+$ python3 -m venv env
+```
+
+Activate the `venv`:
+```
+$ . env/bin/activate
+```
