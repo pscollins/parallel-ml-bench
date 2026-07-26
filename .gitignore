@@ -2,3 +2,4 @@ mpl/bin
 figures/
 results/*
 env/
+__pycache__/
