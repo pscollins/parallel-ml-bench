@@ -96,18 +96,38 @@ def test_postprocess_record():
 def test_get_most_recent_results_file(tmp_path):
     f1 = tmp_path / "260101-100000"
     f2 = tmp_path / "260101-110000"
-    f_processed = tmp_path / "260101-110000.processed.jsonl"
 
     f1.write_text("{}")
     f2.write_text("{}")
-    f_processed.write_text("{}")
 
     os.utime(f1, (1000, 1000))
     os.utime(f2, (2000, 2000))
-    os.utime(f_processed, (3000, 3000))
 
     most_recent = get_most_recent_results_file(str(tmp_path))
     assert most_recent == str(f2)
+
+
+def test_default_output_location(tmp_path):
+    results_dir = tmp_path / "results"
+    processed_dir = tmp_path / "processed_results"
+    results_dir.mkdir()
+
+    infile = results_dir / "260726-000000"
+    infile.write_text(json.dumps({"tag": "test", "stdout": "time 1.2s\n", "stderr": ""}) + "\n")
+
+    in_res, out_res = postprocess_file(
+        infile=str(infile),
+        outfile=None,
+        results_dir=str(results_dir),
+        processed_results_dir=str(processed_dir),
+    )
+
+    expected_outfile = str(processed_dir / "260726-000000.processed.jsonl")
+    assert out_res == expected_outfile
+    assert os.path.exists(expected_outfile)
+
+    data = json.loads(open(expected_outfile).read().strip())
+    assert data["test_results_secs"] == [1.2]
 
 
 def test_golden_postprocess(tmp_path):

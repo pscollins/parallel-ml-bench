@@ -65,17 +65,23 @@ def get_most_recent_results_file(results_dir: str = 'results') -> str:
     return candidates[0]
 
 
-def postprocess_file(infile: Optional[str] = None, outfile: Optional[str] = None, results_dir: str = 'results') -> Tuple[str, str]:
+def postprocess_file(
+    infile: Optional[str] = None,
+    outfile: Optional[str] = None,
+    results_dir: str = 'results',
+    processed_results_dir: str = 'processed_results',
+) -> Tuple[str, str]:
     """Reads JSON lines from infile, postprocesses each record, and writes to outfile.
 
     Defaults infile to the most recent file under results_dir.
-    Defaults outfile to infile + '.processed.jsonl'.
+    Defaults outfile to processed_results/$FILENAME.processed.jsonl.
     """
     if infile is None:
         infile = get_most_recent_results_file(results_dir)
 
     if outfile is None:
-        outfile = f"{infile}.processed.jsonl"
+        filename = os.path.basename(infile)
+        outfile = os.path.join(processed_results_dir, f"{filename}.processed.jsonl")
 
     processed_records = []
     with open(infile, 'r', encoding='utf-8') as f_in:

@@ -18,7 +18,7 @@ def main() -> None:
         "--outfile",
         type=str,
         default=None,
-        help="Output JSONL results file (defaults to $RESULTS_FILE.processed.jsonl).",
+        help="Output JSONL results file (defaults to processed_results/$FILENAME.processed.jsonl).",
     )
 
     args = parser.parse_args()
