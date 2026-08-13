@@ -27,7 +27,7 @@ for fp in os.listdir(os.path.join(root, "config")):
 
 # print(mpl_switch_commits)
 
-def isInstalled((commit, compilerPath)):
+def isInstalled(commit, compilerPath):
   compilerPath = os.path.join(
     os.path.expanduser("~"),
     ".mpl",
