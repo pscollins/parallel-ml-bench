@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
   flags = args.flags[1:] if len(args.flags) > 0 and args.flags[0] == "--" else args.flags
 
-  compilerPath = config["compiler"]
+  compilerPath = os.path.expanduser(config["compiler"])
   if "mpl-switch-commit" in config:
     commit = config["mpl-switch-commit"]
     compilerPath = os.path.join(
