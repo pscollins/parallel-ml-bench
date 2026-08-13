@@ -8,7 +8,7 @@
               "-pre-flatten-recursive-steps", "10",
               "-pre-flatten-types-policy", "tuple",
               "-pre-flatten-phase", "late",
-              "-pre-flatten-transfer-policy", "tail_only",
+              "-pre-flatten-transfer-policy", "tail_only"
              ],
     "comment": "Matches MLton `run_tuple_pre_flatten_vs_head.sh` at d2769f12b",
     "compat": "mlton"

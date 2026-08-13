@@ -89,8 +89,8 @@ if __name__ == "__main__":
   try:
     with open(configFile, 'r') as f:
       config = json.loads(f.read())
-  except:
-    eprint("could not load " + configFile)
+  except Exception as e:
+    eprint("could not load {}: {}".format(configFile, e))
     die()
 
   ensureDirs(args.output)
