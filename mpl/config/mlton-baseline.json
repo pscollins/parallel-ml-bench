@@ -1,5 +1,5 @@
 {
-    "compiler": "/home/pscollins/code/mlton/build/bin/mlton",
+    "compiler": "~/code/mlton/build/bin/mlton",
     "flags": ["-codegen", "c", "-disable-pass", "(preFlatten.*)|(shallowFlaten.*)"],
     "compat": "mlton"
 }
