@@ -12,6 +12,9 @@ from postprocess_results_lib import (
     postprocess_record,
     get_most_recent_results_file,
     postprocess_file,
+    get_md5_via_tool,
+    parse_compiler_binary_path,
+    get_compiler_md5,
 )
 
 
@@ -75,6 +78,7 @@ def test_postprocess_record():
         "tag": "primes",
         "bench": "primes",
         "config": "mlton",
+        "cmd": "/usr/bin/time -v bin/primes.mlton.bin -N 100000000",
         "stdout": "warmup_run 1.2s\ntime 3.4s\n",
         "stderr": "some log\n",
         "elapsed": 10.5,
@@ -91,6 +95,41 @@ def test_postprocess_record():
     assert processed["returncode"] == 0
     assert processed["warmup_result_secs"] == [1.2]
     assert processed["test_results_secs"] == [3.4]
+    assert "compiler_md5" in processed
+    assert isinstance(processed["compiler_md5"], str)
+    assert len(processed["compiler_md5"]) > 0
+
+
+def test_get_md5_via_tool(tmp_path):
+    test_file = tmp_path / "sample_binary.bin"
+    test_file.write_bytes(b"hello world")
+    checksum = get_md5_via_tool(str(test_file))
+    # MD5 of 'hello world' is 5eb63bbbe01eeed093cb22bb8f5acdc3
+    assert checksum == "5eb63bbbe01eeed093cb22bb8f5acdc3"
+
+
+def test_parse_compiler_binary_path(tmp_path):
+    fake_compiler = tmp_path / "fake_gcc"
+    fake_compiler.write_text("#!/bin/sh\necho gcc")
+    fake_compiler.chmod(0o755)
+
+    res = parse_compiler_binary_path(f"{fake_compiler} -O3 main.c")
+    assert res == str(fake_compiler)
+
+    res_mlton = parse_compiler_binary_path("/usr/bin/time -v bin/primes.mlton.bin -N 100")
+    assert res_mlton is not None and ("mlton" in res_mlton)
+
+
+def test_get_compiler_md5(tmp_path):
+    fake_compiler = tmp_path / "fake_compiler"
+    fake_compiler.write_bytes(b"test compiler binary content")
+    fake_compiler.chmod(0o755)
+
+    record = {
+        "cmd": f"{fake_compiler} -o out main.c"
+    }
+    md5_hash = get_compiler_md5(record)
+    assert md5_hash == get_md5_via_tool(str(fake_compiler))
 
 
 def test_get_most_recent_results_file(tmp_path):
@@ -131,6 +170,7 @@ def test_default_output_location(tmp_path, monkeypatch):
 
     data = json.loads(open(expected_outfile).read().strip())
     assert data["test_results_secs"] == [1.2]
+    assert "compiler_md5" in data
 
 
 def test_golden_postprocess(tmp_path, monkeypatch):
@@ -208,5 +248,6 @@ def test_cli_singular_script_entrypoint(tmp_path):
         os.remove(output_path)
     assert f"Processed results: {infile} -> processed_results/single_test:{filename}:" in res.stdout
     assert f":{filename}.processed.jsonl" in res.stdout
+
 
 

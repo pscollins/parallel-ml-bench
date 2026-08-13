@@ -1,15 +1,35 @@
 #!/usr/bin/env python3
 """Library for postprocessing parallel-ml-bench JSONL benchmark results."""
 
+import hashlib
 import json
 import os
 import re
+import shutil
 import socket
 import subprocess
 from typing import Dict, List, Optional, Tuple, Any
 
 WARMUP_PAT = re.compile(r'^\s*warmup_run\s+([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\s*s?\s*$', re.IGNORECASE)
 TEST_PAT = re.compile(r'^\s*time\s+([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\s*s?\s*$', re.IGNORECASE)
+
+KNOWN_COMPILER_NAMES = {
+    'gcc': ['gcc'],
+    'g++': ['g++'],
+    'cpp': ['g++', 'gcc'],
+    'c++': ['g++', 'gcc'],
+    'clang': ['clang'],
+    'clang++': ['clang++'],
+    'mlton': ['mlton'],
+    'mpl': ['mpl'],
+    'go': ['go'],
+    'java': ['javac', 'java'],
+    'ocaml': ['ocamlopt', 'ocamlc'],
+}
+
+WRAPPERS = {
+    '/usr/bin/time', 'time', 'numactl', 'env', 'taskset',
+}
 
 
 def get_hostname() -> str:
@@ -24,6 +44,135 @@ def get_git_hash() -> str:
         return out
     except Exception:
         return 'unknown'
+
+
+def get_md5_via_tool(filepath: str) -> Optional[str]:
+    """Calculates MD5 checksum of filepath using md5 or md5sum CLI tool."""
+    if not filepath or not os.path.isfile(filepath):
+        return None
+
+    for tool in ['md5', 'md5sum']:
+        if shutil.which(tool):
+            try:
+                out = subprocess.check_output([tool, filepath], text=True, stderr=subprocess.DEVNULL)
+                m = re.search(r'[a-fA-F0-9]{32}', out)
+                if m:
+                    return m.group(0).lower()
+            except Exception:
+                pass
+
+    try:
+        hasher = hashlib.md5()
+        with open(filepath, 'rb') as f:
+            for chunk in iter(lambda: f.read(65536), b''):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+    except Exception:
+        return None
+
+
+def parse_compiler_binary_path(cmd_str: Optional[str] = None, record: Optional[Dict[str, Any]] = None) -> Optional[str]:
+    """Parses out the compiler binary path from commandline string or record."""
+    if not cmd_str and record:
+        cmd_str = record.get('cmd') or record.get('commandline') or ''
+
+    if not cmd_str:
+        return None
+
+    def resolve_path(p: str) -> Optional[str]:
+        p_expanded = os.path.expanduser(p)
+        if os.path.isfile(p_expanded):
+            return os.path.abspath(p_expanded)
+        w = shutil.which(p)
+        if w and os.path.isfile(w):
+            return os.path.abspath(w)
+        return None
+
+    tokens = [t for t in cmd_str.split() if '=' not in t or t.startswith('/') or t.startswith('./')]
+    idx = 0
+    while idx < len(tokens):
+        t = tokens[idx]
+        if t in WRAPPERS or os.path.basename(t) in WRAPPERS:
+            idx += 1
+            while idx < len(tokens) and tokens[idx].startswith('-'):
+                idx += 1
+                if idx < len(tokens) and tokens[idx - 1] in ('-i', '-c'):
+                    idx += 1
+            continue
+        if t == '--':
+            idx += 1
+            continue
+        break
+
+    if idx < len(tokens):
+        exe_token = tokens[idx]
+        resolved = resolve_path(exe_token)
+        if resolved:
+            base = os.path.basename(resolved).lower()
+            if any(c in base for c in ['gcc', 'g++', 'clang', 'mlton', 'mpl', 'ocaml', 'javac', 'go', 'compiler']):
+                return resolved
+
+    compiler_key = None
+    bin_match = re.search(r'bin/[^/\s]+\.([^/\s]+)\.bin', cmd_str)
+    if bin_match:
+        compiler_key = bin_match.group(1)
+    elif record and record.get('config'):
+        compiler_key = record.get('config')
+
+    if not compiler_key and idx < len(tokens):
+        resolved = resolve_path(tokens[idx])
+        if resolved:
+            return resolved
+
+    if not compiler_key:
+        return None
+
+    base_key = compiler_key.split('-')[0]
+
+    root_dir = os.getcwd()
+    try:
+        git_root = subprocess.check_output(['git', 'rev-parse', '--show-toplevel'], stderr=subprocess.DEVNULL, text=True).strip()
+        if git_root:
+            root_dir = git_root
+    except Exception:
+        pass
+
+    config_candidates = [
+        os.path.join(root_dir, 'mpl', 'config', f'{compiler_key}.json'),
+        os.path.join(root_dir, 'mpl', 'config', f'{base_key}.json'),
+        os.path.join(root_dir, 'config', f'{compiler_key}.json'),
+        os.path.join(root_dir, 'config', f'{base_key}.json'),
+    ]
+
+    for cfg_path in config_candidates:
+        if os.path.isfile(cfg_path):
+            try:
+                with open(cfg_path, 'r', encoding='utf-8') as f:
+                    cfg_data = json.load(f)
+                    if 'compiler' in cfg_data:
+                        res = resolve_path(cfg_data['compiler'])
+                        if res:
+                            return res
+            except Exception:
+                pass
+
+    names_to_try = KNOWN_COMPILER_NAMES.get(compiler_key) or KNOWN_COMPILER_NAMES.get(base_key) or [compiler_key, base_key]
+    for name in names_to_try:
+        res = resolve_path(name)
+        if res:
+            return res
+
+    return None
+
+
+def get_compiler_md5(record: Dict[str, Any]) -> str:
+    """Parses out the compiler binary from the commandline in record and calculates its MD5 checksum."""
+    compiler_path = parse_compiler_binary_path(record=record)
+    if compiler_path:
+        md5_hash = get_md5_via_tool(compiler_path)
+        if md5_hash:
+            return md5_hash
+    return 'unknown'
 
 
 def parse_output(stdout: Optional[str], stderr: Optional[str]) -> Tuple[List[float], List[float]]:
@@ -49,7 +198,7 @@ def postprocess_record(record: Dict[str, Any]) -> Dict[str, Any]:
     """Processes a single benchmark record dictionary.
 
     Keeps all existing tags/fields except for stdout and stderr, which are parsed
-    into warmup_result_secs and test_results_secs.
+    into warmup_result_secs and test_results_secs. Adds compiler_md5 field.
     """
     record_copy = dict(record)
     stdout = record_copy.pop('stdout', None)
@@ -58,6 +207,7 @@ def postprocess_record(record: Dict[str, Any]) -> Dict[str, Any]:
     warmup_secs, test_secs = parse_output(stdout, stderr)
     record_copy['warmup_result_secs'] = warmup_secs
     record_copy['test_results_secs'] = test_secs
+    record_copy['compiler_md5'] = get_compiler_md5(record)
     return record_copy
 
 
@@ -119,4 +269,5 @@ def postprocess_file(
             f_out.write(json.dumps(record) + '\n')
 
     return infile, outfile
+
 
