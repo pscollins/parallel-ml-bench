@@ -117,6 +117,30 @@ JSON object with the parameters and results from that run.
 You may terminate the `run` script early with `Ctrl-C`. All results obtained
 so far will still be available in the results file.
 
+## Postprocessing results
+
+After running experiments, raw benchmark results JSONL files can be postprocessed using `postprocess_results.py`.
+
+This script parses standard output (`stdout`) and error (`stderr`) logs from each benchmark run, extracts warmup and test execution times into structured array fields (`warmup_result_secs` and `test_results_secs`), and outputs a clean JSONL file with the raw text output removed.
+
+### Usage
+
+To postprocess the most recently generated results file in `results/`:
+```
+$ ./postprocess_results.py
+```
+This will write the output to `processed_results/<FILENAME>.processed.jsonl`.
+
+You can also specify explicit input and output file paths:
+```
+$ ./postprocess_results.py --infile results/260726-120000 --outfile processed_results/custom.jsonl
+```
+
+### Options
+
+* `--infile <PATH>`: Input JSONL results file. Defaults to the most recently modified file in `results/` (excluding `.processed.jsonl` files).
+* `--outfile <PATH>`: Output processed JSONL results file. Defaults to `processed_results/<FILENAME>.processed.jsonl`.
+
 ## Generate report
 
 After using the `run` script as described above, you can run the following
