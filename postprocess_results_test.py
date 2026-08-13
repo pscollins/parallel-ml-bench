@@ -107,7 +107,7 @@ def test_get_most_recent_results_file(tmp_path):
     assert most_recent == str(f2)
 
 
-def test_default_output_location(tmp_path):
+def test_default_output_location(tmp_path, monkeypatch):
     results_dir = tmp_path / "results"
     processed_dir = tmp_path / "processed_results"
     results_dir.mkdir()
@@ -115,14 +115,17 @@ def test_default_output_location(tmp_path):
     infile = results_dir / "260726-000000"
     infile.write_text(json.dumps({"tag": "test", "stdout": "time 1.2s\n", "stderr": ""}) + "\n")
 
+    monkeypatch.setattr("postprocess_results_lib.get_hostname", lambda: "testhost")
+    monkeypatch.setattr("postprocess_results_lib.get_git_hash", lambda: "abc123hash")
+
     in_res, out_res = postprocess_file(
         infile=str(infile),
-        outfile=None,
+        nick="mynick",
         results_dir=str(results_dir),
         processed_results_dir=str(processed_dir),
     )
 
-    expected_outfile = str(processed_dir / "260726-000000.processed.jsonl")
+    expected_outfile = str(processed_dir / "mynick:260726-000000:testhost:abc123hash:260726-000000.processed.jsonl")
     assert out_res == expected_outfile
     assert os.path.exists(expected_outfile)
 
@@ -130,13 +133,23 @@ def test_default_output_location(tmp_path):
     assert data["test_results_secs"] == [1.2]
 
 
-def test_golden_postprocess(tmp_path):
+def test_golden_postprocess(tmp_path, monkeypatch):
     testdata_dir = os.path.join(os.path.dirname(__file__), "testdata")
     sample_file = os.path.join(testdata_dir, "sample_results.jsonl")
     golden_file = os.path.join(testdata_dir, "sample_results.golden.jsonl")
 
-    output_file = str(tmp_path / "out.processed.jsonl")
-    postprocess_file(infile=sample_file, outfile=output_file)
+    monkeypatch.setattr("postprocess_results_lib.get_hostname", lambda: "testhost")
+    monkeypatch.setattr("postprocess_results_lib.get_git_hash", lambda: "abc123hash")
+
+    in_res, output_file = postprocess_file(
+        infile=sample_file,
+        nick="testnick",
+        processed_results_dir=str(tmp_path),
+    )
+
+    filename = os.path.basename(sample_file)
+    expected_outfile = str(tmp_path / f"testnick:{filename}:testhost:abc123hash:{filename}.processed.jsonl")
+    assert output_file == expected_outfile
 
     with open(output_file, "r") as f_out, open(golden_file, "r") as f_gold:
         out_lines = [json.loads(line) for line in f_out if line.strip()]
@@ -145,10 +158,11 @@ def test_golden_postprocess(tmp_path):
     assert out_lines == gold_lines
 
 
-def test_cli_custom_paths(tmp_path):
-    infile = tmp_path / "test_in.jsonl"
-    outfile = tmp_path / "test_out.jsonl"
+def test_cli_nick_option(tmp_path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
 
+    infile = results_dir / "260726-100000"
     rec = {
         "tag": "test",
         "stdout": "warmup_run 0.5s\ntime 1.0s\n",
@@ -157,24 +171,24 @@ def test_cli_custom_paths(tmp_path):
     infile.write_text(json.dumps(rec) + "\n")
 
     res = subprocess.run(
-        [sys.executable, "postprocess_results.py", f"--infile={infile}", f"--outfile={outfile}"],
+        [sys.executable, "postprocess_results.py", f"--infile={infile}", "--nick=mynick"],
         capture_output=True,
         text=True,
     )
     assert res.returncode == 0
-    assert outfile.exists()
-
-    data = json.loads(outfile.read_text().strip())
-    assert "stdout" not in data
-    assert "stderr" not in data
-    assert data["warmup_result_secs"] == [0.5]
-    assert data["test_results_secs"] == [1.0]
+    filename = os.path.basename(infile)
+    output_path = res.stdout.split("->")[-1].strip()
+    if os.path.exists(output_path):
+        os.remove(output_path)
+    assert f"Processed results: {infile} -> processed_results/mynick:{filename}:" in res.stdout
+    assert f":{filename}.processed.jsonl" in res.stdout
 
 
 def test_cli_singular_script_entrypoint(tmp_path):
-    infile = tmp_path / "test_in.jsonl"
-    outfile = tmp_path / "test_out.jsonl"
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
 
+    infile = results_dir / "260726-200000"
     rec = {
         "tag": "test",
         "stdout": "warmup_run 0.2s\ntime 0.8s\n",
@@ -183,13 +197,16 @@ def test_cli_singular_script_entrypoint(tmp_path):
     infile.write_text(json.dumps(rec) + "\n")
 
     res = subprocess.run(
-        [sys.executable, "postprocess_result.py", f"--infile={infile}", f"--outfile={outfile}"],
+        [sys.executable, "postprocess_result.py", f"--infile={infile}", "--nick=single_test"],
         capture_output=True,
         text=True,
     )
     assert res.returncode == 0
-    assert outfile.exists()
+    filename = os.path.basename(infile)
+    output_path = res.stdout.split("->")[-1].strip()
+    if os.path.exists(output_path):
+        os.remove(output_path)
+    assert f"Processed results: {infile} -> processed_results/single_test:{filename}:" in res.stdout
+    assert f":{filename}.processed.jsonl" in res.stdout
 
-    data = json.loads(outfile.read_text().strip())
-    assert data["warmup_result_secs"] == [0.2]
-    assert data["test_results_secs"] == [0.8]
+

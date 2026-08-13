@@ -129,17 +129,20 @@ To postprocess the most recently generated results file in `results/`:
 ```
 $ ./postprocess_results.py
 ```
-This will write the output to `processed_results/<FILENAME>.processed.jsonl`.
-
-You can also specify explicit input and output file paths:
+Output files are written to `processed_results/` using the following naming scheme:
 ```
-$ ./postprocess_results.py --infile results/260726-120000 --outfile processed_results/custom.jsonl
+processed_results/<NICK>:<FILENAME>:<HOSTNAME>:<GIT_HASH>:<FILENAME>.processed.jsonl
+```
+
+You can pass a nickname string using `--nick`:
+```
+$ ./postprocess_results.py --infile results/260726-120000 --nick mynick
 ```
 
 ### Options
 
 * `--infile <PATH>`: Input JSONL results file. Defaults to the most recently modified file in `results/` (excluding `.processed.jsonl` files).
-* `--outfile <PATH>`: Output processed JSONL results file. Defaults to `processed_results/<FILENAME>.processed.jsonl`.
+* `--nick <STRING>`: Optional nickname prefix for the output processed results filename.
 
 ## Generate report
 

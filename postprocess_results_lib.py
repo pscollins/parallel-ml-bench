@@ -4,10 +4,26 @@
 import json
 import os
 import re
+import socket
+import subprocess
 from typing import Dict, List, Optional, Tuple, Any
 
 WARMUP_PAT = re.compile(r'^\s*warmup_run\s+([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\s*s?\s*$', re.IGNORECASE)
 TEST_PAT = re.compile(r'^\s*time\s+([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\s*s?\s*$', re.IGNORECASE)
+
+
+def get_hostname() -> str:
+    """Returns system hostname."""
+    return socket.gethostname()
+
+
+def get_git_hash() -> str:
+    """Returns current git commit hash or 'unknown' if git execution fails."""
+    try:
+        out = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.DEVNULL, text=True).strip()
+        return out
+    except Exception:
+        return 'unknown'
 
 
 def parse_output(stdout: Optional[str], stderr: Optional[str]) -> Tuple[List[float], List[float]]:
@@ -67,21 +83,25 @@ def get_most_recent_results_file(results_dir: str = 'results') -> str:
 
 def postprocess_file(
     infile: Optional[str] = None,
-    outfile: Optional[str] = None,
+    nick: str = "",
     results_dir: str = 'results',
     processed_results_dir: str = 'processed_results',
 ) -> Tuple[str, str]:
     """Reads JSON lines from infile, postprocesses each record, and writes to outfile.
 
     Defaults infile to the most recent file under results_dir.
-    Defaults outfile to processed_results/$FILENAME.processed.jsonl.
+    Outfile format: processed_results/<NICK>:<FILENAME>:<HOSTNAME>:<GIT_HASH>:<FILENAME>.processed.jsonl
     """
     if infile is None:
         infile = get_most_recent_results_file(results_dir)
 
-    if outfile is None:
-        filename = os.path.basename(infile)
-        outfile = os.path.join(processed_results_dir, f"{filename}.processed.jsonl")
+    filename = os.path.basename(infile)
+    hostname = get_hostname()
+    git_hash = get_git_hash()
+    nick_str = nick if nick is not None else ""
+
+    outfile_name = f"{nick_str}:{filename}:{hostname}:{git_hash}:{filename}.processed.jsonl"
+    outfile = os.path.join(processed_results_dir, outfile_name)
 
     processed_records = []
     with open(infile, 'r', encoding='utf-8') as f_in:
@@ -99,3 +119,4 @@ def postprocess_file(
             f_out.write(json.dumps(record) + '\n')
 
     return infile, outfile
+

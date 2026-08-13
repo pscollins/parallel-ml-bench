@@ -15,16 +15,16 @@ def main() -> None:
         help="Input JSONL results file (defaults to most-recent file under results/).",
     )
     parser.add_argument(
-        "--outfile",
+        "--nick",
         type=str,
-        default=None,
-        help="Output JSONL results file (defaults to processed_results/$FILENAME.processed.jsonl).",
+        default="",
+        help="Nickname prefix for output processed results filename.",
     )
 
     args = parser.parse_args()
 
     try:
-        infile, outfile = postprocess_file(infile=args.infile, outfile=args.outfile)
+        infile, outfile = postprocess_file(infile=args.infile, nick=args.nick)
         print(f"Processed results: {infile} -> {outfile}")
     except Exception as e:
         print(f"Error postprocessing results: {e}", file=sys.stderr)
