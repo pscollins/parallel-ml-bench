@@ -84,6 +84,16 @@ $ git clone https://github.com/MPLLang/parallel-ml-bench
 $ cd parallel-ml-bench
 ```
 
+Before running the initialization script, ensure `smlpkg` is installed and available in your `PATH` (it is required by `./init` and `generate-inputs` to sync the `mpllib` dependency):
+```
+$ git clone https://github.com/diku-dk/smlpkg
+$ cd smlpkg
+$ make MLCOMP=mlton
+$ make install INSTALLDIR=~/.local/bin
+$ export PATH="$HOME/.local/bin:$PATH"
+$ cd ..
+```
+
 Then, run the init script. This should take approximately 15 minutes. It
 installs all necessary  versions of `mpl` and generates inputs. Note that
 the generated inputs require approximately 5GB of disk space.

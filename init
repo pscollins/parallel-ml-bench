@@ -11,4 +11,5 @@ echo "[INFO] smlpkg lib sync'ed"
 ./generate-inputs
 echo "[INFO] inputs generated"
 
-$ROOT/scripts/install_mpls
+echo "Skip installng MPLs"
+# $ROOT/scripts/install_mpls
