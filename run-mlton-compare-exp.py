@@ -4,6 +4,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -24,7 +25,7 @@ def get_git_root():
 
 def main():
     parser = argparse.ArgumentParser(description="Run MLton compare experiments.")
-    parser.add_argument('--test', required=True, help="Benchmark test name")
+    parser.add_argument('--test', default='.*', help="Benchmark test name pattern (regex)")
 
     args, gencmds_args = parser.parse_known_args()
 
@@ -54,6 +55,7 @@ def main():
         sys.stderr.write(e.stderr)
         sys.exit(e.returncode)
 
+    test_pattern = re.compile(args.test)
     matching_rows = []
     for line in res.stdout.splitlines():
         line = line.strip()
@@ -64,13 +66,15 @@ def main():
         except json.JSONDecodeError:
             continue
 
+        bench = row.get("bench") or ""
+        tag = row.get("tag") or ""
         if (row.get("config") == "mpl" and
-            (row.get("bench") == args.test or row.get("tag") == args.test) and
+            (test_pattern.search(bench) or test_pattern.search(tag)) and
             row.get("exp") == "time"):
             matching_rows.append(row)
 
     if not matching_rows:
-        print(f"[ERR] No experiments found for benchmark '{args.test}'")
+        print(f"[ERR] No experiments found for benchmark pattern '{args.test}'")
         sys.exit(1)
 
     # Run experiments for both 'mlton' and 'mlton-baseline'
