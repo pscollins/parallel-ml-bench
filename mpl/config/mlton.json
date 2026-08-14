@@ -8,11 +8,11 @@
               "-pre-flatten-consumer-policy", "always",
               "-pre-flatten-resolve-policy", "local",
               "-pre-flatten-recursive-steps", "10",
-              "-pre-flatten-types-policy", "tuple",
-              "-pre-flatten-phase", "late",
-              "-pre-flatten-transfer-policy", "tail_only"
+              "-pre-flatten-types-policy", "con",
+              "-pre-flatten-phase", "early",
+              "-pre-flatten-transfer-policy", "always"
              ],
-    "comment": "Matches MLton `run_tuple_pre_flatten_vs_head.sh` at d2769f12b",
+    "comment": "Matches MLton `run_conapp_pre_flatten_vs_head.sh` at d2769f12b",
     "compat": "mlton"
 }
 
