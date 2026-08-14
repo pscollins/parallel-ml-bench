@@ -1,0 +1,14 @@
+{
+    "compiler": "~/code/mlton/build/bin/mlton",
+    "flags": ["-codegen", "c",
+              "-link-opt", "-s",
+              "-build-magic", "0",
+              "-shallow-flatten-max-iters", "1",
+              "-pre-flatten-max-iters", "0",
+              "-shallow-flatten-mechanism", "aos",
+              "-shallow-flatten-policy", "maxWidthSameType:4"
+             ],
+    "comment": "AoS flattening config",
+    "compat": "mlton"
+}
+
