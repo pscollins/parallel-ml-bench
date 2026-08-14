@@ -26,6 +26,8 @@ def get_git_root():
 def main():
     parser = argparse.ArgumentParser(description="Run MLton compare experiments.")
     parser.add_argument('--test', default='.*', help="Benchmark test name pattern (regex)")
+    parser.add_argument('--base_config', default='mlton-baseline', help="Base config name")
+    parser.add_argument('--test_config', default='mlton', help="Test config name")
 
     args, gencmds_args = parser.parse_known_args()
 
@@ -77,21 +79,21 @@ def main():
         print(f"[ERR] No experiments found for benchmark pattern '{args.test}'")
         sys.exit(1)
 
-    # Run experiments for both 'mlton' and 'mlton-baseline'
+    # Run experiments for both test_config and base_config
     run_rows = []
     for row in matching_rows:
-        r_mlton = row.copy()
-        r_mlton["config"] = "mlton"
-        if "cmd" in r_mlton:
-            r_mlton["cmd"] = r_mlton["cmd"].replace(".mpl.bin", ".mlton.bin", 1)
-        run_rows.append(r_mlton)
+        r_test = row.copy()
+        r_test["config"] = args.test_config
+        if "cmd" in r_test:
+            r_test["cmd"] = r_test["cmd"].replace(".mpl.bin", f".{args.test_config}.bin", 1)
+        run_rows.append(r_test)
 
     for row in matching_rows:
-        r_baseline = row.copy()
-        r_baseline["config"] = "mlton-baseline"
-        if "cmd" in r_baseline:
-            r_baseline["cmd"] = r_baseline["cmd"].replace(".mpl.bin", ".mlton-baseline.bin", 1)
-        run_rows.append(r_baseline)
+        r_base = row.copy()
+        r_base["config"] = args.base_config
+        if "cmd" in r_base:
+            r_base["cmd"] = r_base["cmd"].replace(".mpl.bin", f".{args.base_config}.bin", 1)
+        run_rows.append(r_base)
 
     run_input = "\n".join(json.dumps(r) for r in run_rows) + "\n"
 
