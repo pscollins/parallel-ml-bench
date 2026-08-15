@@ -3,7 +3,7 @@
     "flags": ["-codegen", "c",
               "-link-opt", "-s",
               "-build-magic", "0",
-              "-disable-pass", "(preFlatten.*)|(shallowFlaten.*)"],
+              "-disable-pass", "(preFlatten.*)|(shallowFlatten.*)"],
     "comment": "Determinism + disable changed passes",
     "compat": "mlton"
 }
