@@ -1,5 +1,5 @@
 {
-    "compiler": "~/code/mlton/build/bin/mlton",
+    "compiler": "~/code/mpl/build/bin/mpl",
     "flags": ["-codegen", "c",
               "-link-opt", "-s",
               "-build-magic", "0",
@@ -9,5 +9,5 @@
               "-shallow-flatten-policy", "maxWidthSameType:4"
              ],
     "comment": "SoA flattening config",
-    "compat": "mlton"
+    "compat": "mpl"
 }

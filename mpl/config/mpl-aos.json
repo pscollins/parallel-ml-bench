@@ -1,13 +1,13 @@
 {
-    "compiler": "~/code/mlton/build/bin/mlton",
+    "compiler": "~/code/mpl/build/bin/mpl",
     "flags": ["-codegen", "c",
               "-link-opt", "-s",
               "-build-magic", "0",
               "-shallow-flatten-max-iters", "1",
               "-pre-flatten-max-iters", "0",
-              "-shallow-flatten-mechanism", "soa",
+              "-shallow-flatten-mechanism", "aos",
               "-shallow-flatten-policy", "maxWidthSameType:4"
              ],
-    "comment": "SoA flattening config",
-    "compat": "mlton"
+    "comment": "AoS flattening config",
+    "compat": "mpl"
 }

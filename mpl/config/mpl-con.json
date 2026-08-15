@@ -1,0 +1,17 @@
+{
+    "compiler": "~/code/mpl/build/bin/mpl",
+    "flags": ["-codegen", "c",
+              "-link-opt", "-s",
+              "-build-magic", "0",
+              "-shallow-flatten-max-iters", "0",
+              "-pre-flatten-max-iters", "1",
+              "-pre-flatten-consumer-policy", "always",
+              "-pre-flatten-resolve-policy", "local",
+              "-pre-flatten-recursive-steps", "10",
+              "-pre-flatten-types-policy", "con",
+              "-pre-flatten-phase", "early",
+              "-pre-flatten-transfer-policy", "always"
+             ],
+    "comment": "ConApp pre-flattening config",
+    "compat": "mpl"
+}
