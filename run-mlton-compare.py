@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import collections
+import filecmp
 import glob
 import json
 import os
@@ -24,11 +26,71 @@ def get_git_root():
         return script_dir
 
 
+def prebuild_binaries(root, matching_rows, test_config, base_config):
+    bins_by_place = collections.defaultdict(set)
+    for row in matching_rows:
+        bench = row.get("bench")
+        if not bench:
+            continue
+        cwd = row.get("cwd", "mpl")
+        place = os.path.join(root, cwd)
+        bins_by_place[place].add(f"{bench}.{test_config}.bin")
+        bins_by_place[place].add(f"{bench}.{base_config}.bin")
+
+    ncpu = os.cpu_count() or 4
+    jobs = int(max(4, ncpu / 2))
+
+    for place, bins in bins_by_place.items():
+        if not bins:
+            continue
+        bin_list = sorted(list(bins))
+        print(f"[INFO] Building {len(bin_list)} binaries in {place}: {', '.join(bin_list)}")
+        make_cmd = ["make", "-C", place, f"-j{jobs}"] + bin_list
+        res = subprocess.run(make_cmd)
+        if res.returncode != 0:
+            sys.stderr.write(f"[ERR] Build failed in {place}\n")
+            sys.exit(res.returncode)
+
+
+def filter_identical_binaries(root, matching_rows, test_config, base_config):
+    identical_benchmarks = set()
+    unique_benches = set((row.get("cwd", "mpl"), row.get("bench")) for row in matching_rows if row.get("bench"))
+    for cwd, bench in sorted(unique_benches):
+        bin_test = os.path.join(root, cwd, "bin", f"{bench}.{test_config}.bin")
+        bin_base = os.path.join(root, cwd, "bin", f"{bench}.{base_config}.bin")
+
+        if not os.path.isfile(bin_test) or not os.path.isfile(bin_base):
+            print(f"[WARN] Missing binary for '{bench}': {bin_test} or {bin_base}")
+            continue
+
+        if filecmp.cmp(bin_test, bin_base, shallow=False):
+            print(f"[INFO] Skipping benchmark '{bench}': '{test_config}' and '{base_config}' binaries are identical")
+            identical_benchmarks.add((cwd, bench))
+
+    return [
+        row for row in matching_rows
+        if (row.get("cwd", "mpl"), row.get("bench")) not in identical_benchmarks
+    ]
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run MLton compare experiments.")
     parser.add_argument('--test', default='.*', help="Benchmark test name pattern (regex)")
     parser.add_argument('--base_config', default='mlton-baseline', help="Base config name")
     parser.add_argument('--test_config', default='mlton', help="Test config name")
+    parser.add_argument(
+        '--filter_identical_binaries',
+        dest='filter_identical_binaries',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Skip tests for benchmarks where generated binaries are identical (default: True)"
+    )
+    parser.add_argument(
+        '--no_filter_identical_binaries',
+        dest='filter_identical_binaries',
+        action='store_false',
+        help=argparse.SUPPRESS
+    )
 
     args, gencmds_args = parser.parse_known_args()
 
@@ -80,16 +142,28 @@ def main():
         print(f"[ERR] No experiments found for benchmark pattern '{args.test}'")
         sys.exit(1)
 
+    prebuild_binaries(root, matching_rows, args.test_config, args.base_config)
+
+    if args.filter_identical_binaries:
+        active_rows = filter_identical_binaries(
+            root, matching_rows, args.test_config, args.base_config
+        )
+        if not active_rows:
+            print("[INFO] All benchmark binaries are identical; no tests to run.")
+            sys.exit(0)
+    else:
+        active_rows = matching_rows
+
     # Run experiments for both test_config and base_config
     run_rows = []
-    for row in matching_rows:
+    for row in active_rows:
         r_test = row.copy()
         r_test["config"] = args.test_config
         if "cmd" in r_test:
             r_test["cmd"] = r_test["cmd"].replace(".mpl.bin", f".{args.test_config}.bin", 1)
         run_rows.append(r_test)
 
-    for row in matching_rows:
+    for row in active_rows:
         r_base = row.copy()
         r_base["config"] = args.base_config
         if "cmd" in r_base:
@@ -98,7 +172,7 @@ def main():
 
     run_input = "\n".join(json.dumps(r) for r in run_rows) + "\n"
 
-    run_cmd = [run, "--compile", "--output", results]
+    run_cmd = [run, "--output", results]
     res = subprocess.run(run_cmd, input=run_input, text=True)
 
     if res.returncode != 0:
