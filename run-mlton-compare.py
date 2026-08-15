@@ -11,16 +11,17 @@ from datetime import datetime
 
 
 def get_git_root():
+    script_dir = os.path.abspath(os.path.dirname(__file__))
     try:
         res = subprocess.run(
-            ['git', 'rev-parse', '--show-toplevel'],
+            ['git', '-C', script_dir, 'rev-parse', '--show-toplevel'],
             capture_output=True,
             text=True,
             check=True
         )
         return res.stdout.strip()
     except Exception:
-        return os.path.abspath(os.path.dirname(__file__))
+        return script_dir
 
 
 def main():

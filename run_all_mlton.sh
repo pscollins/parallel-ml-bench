@@ -42,7 +42,8 @@ if [[ -z "$BASE" ]]; then
   usage
 fi
 
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || dirname "$(readlink -f "$0")")"
+SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$SCRIPT_DIR")"
 cd "$ROOT"
 
 FLAVORS=("aos" "con" "soa" "tuple")
