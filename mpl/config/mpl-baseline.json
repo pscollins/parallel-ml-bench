@@ -1,8 +1,8 @@
 {
     "compiler": "~/code/mpl/build/bin/mpl",
-    "flags": ["-pre-flatten-max-iters", "0",
-              "-shallow-flatten-max-iters", "1",
-              "-shallow-flatten-mechanism", "soa",
-              "-shallow-flatten-policy", "maxWidthSameType:3"],
+    "flags": ["-codegen", "c",
+              "-link-opt", "-s",
+              "-build-magic", "0",
+              "-disable-pass", "(preFlatten.*)|(shallowFlaten.*)"],
     "compat": "mpl"
 }
