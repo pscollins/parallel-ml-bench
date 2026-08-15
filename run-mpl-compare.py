@@ -66,6 +66,8 @@ def filter_identical_binaries(root, matching_rows, test_config, base_config):
         if filecmp.cmp(bin_test, bin_base, shallow=False):
             print(f"[INFO] Skipping benchmark '{bench}': '{test_config}' and '{base_config}' binaries are identical")
             identical_benchmarks.add((cwd, bench))
+        else:
+            print(f"[INFO] Running benchmark '{bench}': '{test_config}' and '{base_config}' binaries differ")
 
     return [
         row for row in matching_rows
