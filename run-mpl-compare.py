@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--test', default='.*', help="Benchmark test name pattern (regex)")
     parser.add_argument('--base_config', default='mpl-baseline', help="Base config name")
     parser.add_argument('--test_config', default='mpl', help="Test config name")
+    parser.add_argument('--core_counts', default='1', help="Comma-separated list of core counts (default: 1)")
 
     args, gencmds_args = parser.parse_known_args()
 
@@ -49,7 +50,7 @@ def main():
 
     # Get experiments for 'mpl'
     exp_spec = os.path.join(root, "exp-small.json")
-    gen_cmd = [gen] + gencmds_args + [exp_spec]
+    gen_cmd = [gen, "--procs", args.core_counts] + gencmds_args + [exp_spec]
 
     try:
         res = subprocess.run(gen_cmd, capture_output=True, text=True, check=True)

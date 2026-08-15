@@ -2,7 +2,7 @@
   "templates":
     [
       {
-          "match": { "config": "mpl", "exp": "time", "procs": "1" },
+          "match": { "config": "mpl", "exp": "time" },
           "template": "/usr/bin/time -v bin/<bench>.<config>.bin @mpl <procs?procs {}> set-affinity -- <args?{} ><args1?{}> -repeat 20 -warmup 5"
       }
     ],

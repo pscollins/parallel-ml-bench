@@ -1,5 +1,5 @@
 {
-    "compiler": "/home/pscollins/code/mpl/build/bin/mpl",
+    "compiler": "~/code/mpl/build/bin/mpl",
     "flags": ["-pre-flatten-max-iters", "0",
               "-shallow-flatten-max-iters", "1",
               "-shallow-flatten-mechanism", "soa",

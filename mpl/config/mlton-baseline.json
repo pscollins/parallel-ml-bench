@@ -1,9 +1,9 @@
 {
     "compiler": "~/code/mlton/build/bin/mlton",
     "flags": ["-codegen", "c",
-	      "-link-opt", "-s",
-	      "-build-magic", "0",
-	      "-disable-pass", "(preFlatten.*)|(shallowFlaten.*)"],
+              "-link-opt", "-s",
+              "-build-magic", "0",
+              "-disable-pass", "(preFlatten.*)|(shallowFlaten.*)"],
     "comment": "Determinism + disable changed passes",
     "compat": "mlton"
 }
