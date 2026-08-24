@@ -6,7 +6,7 @@
               "-shallow-flatten-max-iters", "1",
               "-pre-flatten-max-iters", "0",
               "-shallow-flatten-mechanism", "aos",
-              "-shallow-flatten-policy", "maxWidthSameType:4"
+              "-shallow-flatten-policy", "maxWidthSameType:3"
              ],
     "comment": "AoS flattening config",
     "compat": "mpl"
