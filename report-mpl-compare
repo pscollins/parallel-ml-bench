@@ -17,11 +17,19 @@ ROOT = getGitRoot()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('input_file', nargs='?', metavar='RESULTS_FILE')
-parser.add_argument('-flavor', default='mpl', choices=['mpl', 'mlton'])
+parser.add_argument('-flavor', '--flavor', default='mpl')
+parser.add_argument('-baseline', '--baseline', default=None)
 args = parser.parse_args()
 
 flavor = args.flavor
-baseline_flavor = flavor + "-baseline"
+if args.baseline:
+  baseline_flavor = args.baseline
+elif flavor.startswith('mpl'):
+  baseline_flavor = 'mpl-baseline'
+elif flavor.startswith('mlton'):
+  baseline_flavor = 'mlton-baseline'
+else:
+  baseline_flavor = flavor + "-baseline"
 
 FLAVOR_LETTER = flavor[0].upper()
 BASELINE_LETTER = "B"
