@@ -52,6 +52,6 @@ for FLAVOR in "${FLAVORS[@]}"; do
   echo "=================================================="
   echo "Running MPL compare for flavor: $FLAVOR (base nick: $BASE)"
   echo "=================================================="
-  ./run-mpl-compare.py --core_counts=1,8,16,32,64,128,160 --test_config="mpl-$FLAVOR" && \
+  ./run-mpl-compare.py --core_counts=1,2,4,8,16,32,64,80,128,160 --test_config="mpl-$FLAVOR" && \
   ./postprocess_results.py --nick="mpl_${FLAVOR}_${BASE}"
 done
