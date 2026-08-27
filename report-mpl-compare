@@ -216,23 +216,49 @@ def averageTimeWithStdDev(data, config, tag, procs, checkExpType=True):
   r = trials[-1]
   return r.get('avgtime'), r.get('stddev')
 
-def ratioStats(times_m, times_b):
-  if not times_m or not times_b:
-    return None, None
-  n = min(len(times_m), len(times_b))
-  if n == 0:
-    return None, None
-  ratios = [times_m[i] / times_b[i] for i in range(n)]
-  return np.mean(ratios), (np.std(ratios) if n > 1 else 0.0)
+RNG = np.random.default_rng(42)
 
-def diffStats(times_m, times_b):
+def ratioStats(times_m, times_b, num_boot=10000, ci_level=0.95):
   if not times_m or not times_b:
     return None, None
-  n = min(len(times_m), len(times_b))
-  if n == 0:
+  m = np.asarray(times_m, dtype=float)
+  b = np.asarray(times_b, dtype=float)
+  if len(m) == 0 or len(b) == 0:
     return None, None
-  diffs = [times_m[i] - times_b[i] for i in range(n)]
-  return np.mean(diffs), (np.std(diffs) if n > 1 else 0.0)
+  mean_b = np.mean(b)
+  if mean_b == 0:
+    return None, None
+  ratio = float(np.mean(m) / mean_b)
+  if len(m) <= 1 and len(b) <= 1:
+    return ratio, 0.0
+  boot_m = RNG.choice(m, size=(num_boot, len(m)), replace=True).mean(axis=1)
+  boot_b = RNG.choice(b, size=(num_boot, len(b)), replace=True).mean(axis=1)
+  valid = boot_b != 0
+  if not np.any(valid):
+    return ratio, 0.0
+  boot_ratios = boot_m[valid] / boot_b[valid]
+  alpha = (1.0 - ci_level) / 2.0 * 100.0
+  ci_low, ci_high = np.percentile(boot_ratios, [alpha, 100.0 - alpha])
+  ci = (ci_high - ci_low) / 2.0
+  return ratio, float(ci)
+
+def diffStats(times_m, times_b, num_boot=10000, ci_level=0.95):
+  if not times_m or not times_b:
+    return None, None
+  m = np.asarray(times_m, dtype=float)
+  b = np.asarray(times_b, dtype=float)
+  if len(m) == 0 or len(b) == 0:
+    return None, None
+  diff = float(np.mean(m) - np.mean(b))
+  if len(m) <= 1 and len(b) <= 1:
+    return diff, 0.0
+  boot_m = RNG.choice(m, size=(num_boot, len(m)), replace=True).mean(axis=1)
+  boot_b = RNG.choice(b, size=(num_boot, len(b)), replace=True).mean(axis=1)
+  boot_diffs = boot_m - boot_b
+  alpha = (1.0 - ci_level) / 2.0 * 100.0
+  ci_low, ci_high = np.percentile(boot_diffs, [alpha, 100.0 - alpha])
+  ci = (ci_high - ci_low) / 2.0
+  return diff, float(ci)
 
 def averageSpace(data, config, tag, procs, checkExpType=True):
   trials = [ r for r in findTrials(data, config, tag, procs) if (not checkExpType) or r['exp'] == 'space' ]
@@ -802,7 +828,7 @@ for tag in cmpTags:
 headers = ['']
 headers1 = ['Benchmark']
 
-subheaders = ['{} (± stddev)'.format(BASELINE_LETTER), '{} (± stddev)'.format(FLAVOR_LETTER), '{}/{} (± stddev)'.format(FLAVOR_LETTER, BASELINE_LETTER), '{}-{} (± stddev)'.format(FLAVOR_LETTER, BASELINE_LETTER)]
+subheaders = ['{} (± stddev)'.format(BASELINE_LETTER), '{} (± stddev)'.format(FLAVOR_LETTER), '{}/{} (± ci)'.format(FLAVOR_LETTER, BASELINE_LETTER), '{}-{} (± ci)'.format(FLAVOR_LETTER, BASELINE_LETTER)]
 
 headers += ['T(1)', None, None, None]
 headers1 += subheaders
@@ -878,13 +904,15 @@ for res in all_results:
     ratios.append(r)
 
 if ratios:
-  log_ratios = np.log(ratios)
-  mean_log = np.mean(log_ratios)
-  std_log = np.std(log_ratios, ddof=1) if len(ratios) > 1 else 0
-  se_log = std_log / np.sqrt(len(ratios))
-  g = np.exp(mean_log)
-  ci_log = 1.96 * se_log
-  ci = g * (np.exp(ci_log) - np.exp(-ci_log)) / 2
+  r_arr = np.asarray(ratios, dtype=float)
+  g = float(np.exp(np.mean(np.log(r_arr))))
+  if len(r_arr) > 1:
+    boot_indices = RNG.choice(len(r_arr), size=(10000, len(r_arr)), replace=True)
+    boot_g = np.exp(np.mean(np.log(r_arr[boot_indices]), axis=1))
+    ci_low, ci_high = np.percentile(boot_g, [2.5, 97.5])
+    ci = float((ci_high - ci_low) / 2.0)
+  else:
+    ci = 0.0
   print("Geomean {}/{} (± ci): {} (± {})".format(FLAVOR_LETTER, BASELINE_LETTER, tm(g), tm(ci)))
   print("")
 
