@@ -26,7 +26,7 @@ def get_git_root():
         return script_dir
 
 
-def prebuild_binaries(root, matching_rows, test_config, base_config):
+def prebuild_binaries(root, matching_rows, test_config, base_config, extra_flags=None):
     bins_by_place = collections.defaultdict(set)
     for row in matching_rows:
         bench = row.get("bench")
@@ -45,7 +45,10 @@ def prebuild_binaries(root, matching_rows, test_config, base_config):
             continue
         bin_list = sorted(list(bins))
         print(f"[INFO] Building {len(bin_list)} binaries in {place}: {', '.join(bin_list)}")
-        make_cmd = ["make", "-C", place, f"-j{jobs}"] + bin_list
+        make_cmd = ["make", "-C", place, f"-j{jobs}"]
+        if extra_flags is not None:
+            make_cmd.append(f"EXTRA_FLAGS={extra_flags}")
+        make_cmd += bin_list
         res = subprocess.run(make_cmd)
         if res.returncode != 0:
             sys.stderr.write(f"[ERR] Build failed in {place}\n")
@@ -81,6 +84,7 @@ def main():
     parser.add_argument('--base_config', default='mpl-baseline', help="Base config name")
     parser.add_argument('--test_config', default='mpl', help="Test config name")
     parser.add_argument('--core_counts', default='1', help="Comma-separated list of core counts (default: 1)")
+    parser.add_argument('--extra_flags', default=None, help="Extra flags to pass to make (sets EXTRA_FLAGS)")
     parser.add_argument(
         '--filter_identical_binaries',
         dest='filter_identical_binaries',
@@ -145,7 +149,7 @@ def main():
         print(f"[ERR] No experiments found for benchmark pattern '{args.test}'")
         sys.exit(1)
 
-    prebuild_binaries(root, matching_rows, args.test_config, args.base_config)
+    prebuild_binaries(root, matching_rows, args.test_config, args.base_config, args.extra_flags)
 
     if args.filter_identical_binaries:
         active_rows = filter_identical_binaries(
