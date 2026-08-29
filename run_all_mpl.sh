@@ -67,9 +67,14 @@ cd "$ROOT"
 IFS=',' read -r -a FLAVORS <<< "$FLAVORS_ARG"
 
 for FLAVOR in "${FLAVORS[@]}"; do
+  FLAVOR="${FLAVOR//[[:space:]]/}"
+  CONFIG_FLAVOR="$FLAVOR"
+  if [[ "$CONFIG_FLAVOR" == "conapp" ]]; then
+    CONFIG_FLAVOR="con"
+  fi
   echo "=================================================="
-  echo "Running MPL compare for flavor: $FLAVOR (base nick: $BASE)"
+  echo "Running MPL compare for flavor: $CONFIG_FLAVOR (base nick: $BASE)"
   echo "=================================================="
-  ./run-mpl-compare.py --core_counts=1,2,4,8,16,32,64,80,128,160 --test_config="mpl-$FLAVOR" && \
-  ./postprocess_results.py --nick="mpl_${FLAVOR}_${BASE}"
+  ./run-mpl-compare.py --core_counts=1,2,4,8,16,32,64,80,128,160 --test_config="mpl-$CONFIG_FLAVOR" && \
+  ./postprocess_results.py --nick="mpl_${CONFIG_FLAVOR}_${BASE}"
 done
