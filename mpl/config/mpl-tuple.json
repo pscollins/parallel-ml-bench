@@ -5,7 +5,7 @@
               "-build-magic", "0",
               "-shallow-flatten-max-iters", "0",
               "-pre-flatten-max-iters", "1",
-              "-pre-flatten-consumer-policy", "any_unpack",
+              "-pre-flatten-consumer-policy", "all_unpack",
               "-pre-flatten-resolve-policy", "global",
               "-pre-flatten-recursive-steps", "10",
               "-pre-flatten-types-policy", "tuple",
