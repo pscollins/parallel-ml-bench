@@ -250,4 +250,50 @@ def test_cli_singular_script_entrypoint(tmp_path):
     assert f":{filename}.processed.jsonl" in res.stdout
 
 
+def test_report_mpl_compare_cores_filter(tmp_path):
+    infile = tmp_path / "sample_mpl_results"
+    records = [
+        {"tag": "tokens", "bench": "tokens", "config": "mpl-baseline", "exp": "time", "procs": "1", "stdout": "time 1.0s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl", "exp": "time", "procs": "1", "stdout": "time 0.9s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl-baseline", "exp": "time", "procs": "8", "stdout": "time 0.2s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl", "exp": "time", "procs": "8", "stdout": "time 0.18s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl-baseline", "exp": "time", "procs": "64", "stdout": "time 0.05s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl", "exp": "time", "procs": "64", "stdout": "time 0.04s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl-baseline", "exp": "time", "procs": "160", "stdout": "time 0.03s\n", "stderr": ""},
+        {"tag": "tokens", "bench": "tokens", "config": "mpl", "exp": "time", "procs": "160", "stdout": "time 0.025s\n", "stderr": ""},
+    ]
+    with open(infile, "w") as f:
+        for r in records:
+            f.write(json.dumps(r) + "\n")
 
+    # Filter single core count
+    res_160 = subprocess.run(
+        [sys.executable, "./report-mpl-compare", str(infile), "--cores=160"],
+        capture_output=True,
+        text=True,
+    )
+    assert res_160.returncode == 0
+    assert "T(160)" in res_160.stdout
+    assert "T(1)" not in res_160.stdout
+    assert "T(64)" not in res_160.stdout
+
+    # Filter multiple core counts
+    res_1_64 = subprocess.run(
+        [sys.executable, "./report-mpl-compare", str(infile), "--cores", "1,64"],
+        capture_output=True,
+        text=True,
+    )
+    assert res_1_64.returncode == 0
+    assert "T(1)" in res_1_64.stdout
+    assert "T(64)" in res_1_64.stdout
+    assert "T(160)" not in res_1_64.stdout
+    assert "T(8)" not in res_1_64.stdout
+
+    # Invalid core argument
+    res_err = subprocess.run(
+        [sys.executable, "./report-mpl-compare", str(infile), "--cores", "abc"],
+        capture_output=True,
+        text=True,
+    )
+    assert res_err.returncode == 1
+    assert "Invalid --cores argument" in res_err.stderr

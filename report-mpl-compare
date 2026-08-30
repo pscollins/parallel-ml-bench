@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('input_file', nargs='?', metavar='RESULTS_FILE')
 parser.add_argument('-flavor', '--flavor', default='mpl')
 parser.add_argument('-baseline', '--baseline', default=None)
+parser.add_argument('-cores', '--cores', default=None, help='Filter by number of cores (e.g. 64 or 1,64 or 160)')
 args = parser.parse_args()
 
 flavor = args.flavor
@@ -626,15 +627,41 @@ with open(timingsFile, 'r') as data:
   resultsData = json_careful_readlines(data)
 D = [ parseStats(row) for row in resultsData ]
 
+if args.cores is not None:
+  try:
+    target_cores = set(int(x.strip()) for x in str(args.cores).split(',') if x.strip())
+  except ValueError:
+    sys.stderr.write("[ERR] Invalid --cores argument: {}\n".format(args.cores))
+    sys.exit(1)
+  if not target_cores or any(p <= 0 for p in target_cores):
+    sys.stderr.write("[ERR] Invalid --cores argument (must be positive integers): {}\n".format(args.cores))
+    sys.exit(1)
+  D = [ row for row in D if row['procs'] in target_cores ]
+  foundProcs = set(row['procs'] for row in D)
+  foundTags = set(row['tag'] for row in D)
+  procs_to_report = sorted([p for p in target_cores if p in foundProcs])
+  if not procs_to_report:
+    procs_to_report = sorted(list(target_cores))
+else:
+  parallel_procs = [p for p in foundProcs if p > 1]
+  if 1 in foundProcs and parallel_procs:
+    procs_le_72 = [p for p in parallel_procs if p <= 72]
+    maxp = max(procs_le_72) if procs_le_72 else max(parallel_procs)
+    procs_to_report = [1, maxp]
+  elif parallel_procs:
+    procs_le_72 = [p for p in parallel_procs if p <= 72]
+    maxp = max(procs_le_72) if procs_le_72 else max(parallel_procs)
+    procs_to_report = [maxp]
+  elif 1 in foundProcs:
+    procs_to_report = [1]
+  else:
+    procs_to_report = sorted(list(foundProcs))
+
 all_pairs = set((row['tag'], row['config']) for row in D)
 ignored = sorted([(t, c) for (t, c) in all_pairs if c != flavor and c != baseline_flavor])
 
 P = sorted(list(foundProcs))
-maxp = max(p for p in foundProcs if p <= 72)
 orderedTags = sorted(list(foundTags), key=displayTag)
-
-foundProcs = set()
-foundTags = set()
 
 def keepTag(t):
   return True
@@ -779,110 +806,74 @@ expSmallTags = getTagsFromExp('exp-small.json')
 
 cmpTags = sorted(list(set(orderedTags) | expSmallTags), key=displayTag)
 
-has_parallel = maxp > 1
 has_space = False
 
 all_results = []
 for tag in cmpTags:
-  bt1_avg, bt1_std = averageTimeWithStdDev(D, baseline_flavor, tag, 1)
-  bt1_times = averageTimes(D, baseline_flavor, tag, 1)
-  btp_avg, btp_std = averageTimeWithStdDev(D, baseline_flavor, tag, maxp)
-  btp_times = averageTimes(D, baseline_flavor, tag, maxp)
-  br1 = spg(averageSpace(D, baseline_flavor, tag, 1))
-  br1_spaces = averageSpaces(D, baseline_flavor, tag, 1)
-  brp = spg(averageSpace(D, baseline_flavor, tag, maxp))
-  brp_spaces = averageSpaces(D, baseline_flavor, tag, maxp)
+  res_entry = {'tag': tag}
+  for p in procs_to_report:
+    bt_avg, bt_std = averageTimeWithStdDev(D, baseline_flavor, tag, p)
+    bt_times = averageTimes(D, baseline_flavor, tag, p)
+    mt_avg, mt_std = averageTimeWithStdDev(D, flavor, tag, p)
+    mt_times = averageTimes(D, flavor, tag, p)
 
-  mt1_avg, mt1_std = averageTimeWithStdDev(D, flavor, tag, 1)
-  mt1_times = averageTimes(D, flavor, tag, 1)
-  mtp_avg, mtp_std = averageTimeWithStdDev(D, flavor, tag, maxp)
-  mtp_times = averageTimes(D, flavor, tag, maxp)
-  mr1 = spg(averageSpace(D, flavor, tag, 1))
-  mr1_spaces = averageSpaces(D, flavor, tag, 1)
-  mrp = spg(averageSpace(D, flavor, tag, maxp))
-  mrp_spaces = averageSpaces(D, flavor, tag, maxp)
+    br = spg(averageSpace(D, baseline_flavor, tag, p))
+    br_spaces = averageSpaces(D, baseline_flavor, tag, p)
+    mr = spg(averageSpace(D, flavor, tag, p))
+    mr_spaces = averageSpaces(D, flavor, tag, p)
 
-  if any(x is not None for x in [br1, brp, mr1, mrp]):
-    has_space = True
+    if any(x is not None for x in [br, mr]):
+      has_space = True
 
-  all_results.append({
-    'tag': tag,
-    'bt1': (bt1_avg, bt1_std),
-    'bt1_times': bt1_times,
-    'btp': (btp_avg, btp_std),
-    'btp_times': btp_times,
-    'br1': br1,
-    'br1_spaces': br1_spaces,
-    'brp': brp,
-    'brp_spaces': brp_spaces,
-    'mt1': (mt1_avg, mt1_std),
-    'mt1_times': mt1_times,
-    'mtp': (mtp_avg, mtp_std),
-    'mtp_times': mtp_times,
-    'mr1': mr1,
-    'mr1_spaces': mr1_spaces,
-    'mrp': mrp,
-    'mrp_spaces': mrp_spaces
-  })
+    res_entry[p] = {
+      'bt': (bt_avg, bt_std),
+      'bt_times': bt_times,
+      'mt': (mt_avg, mt_std),
+      'mt_times': mt_times,
+      'br': br,
+      'br_spaces': br_spaces,
+      'mr': mr,
+      'mr_spaces': mr_spaces,
+    }
+  all_results.append(res_entry)
 
 headers = ['']
 headers1 = ['Benchmark']
 
 subheaders = ['{} (± stddev)'.format(BASELINE_LETTER), '{} (± stddev)'.format(FLAVOR_LETTER), '{}/{} (± ci)'.format(FLAVOR_LETTER, BASELINE_LETTER), '{}-{} (± ci)'.format(FLAVOR_LETTER, BASELINE_LETTER)]
 
-headers += ['T(1)', None, None, None]
-headers1 += subheaders
-
-if has_parallel:
-  headers += ['T({})'.format(maxp), None, None, None]
+for p in procs_to_report:
+  headers += ['T({})'.format(p), None, None, None]
   headers1 += subheaders
 
 if has_space:
-  headers += ['R(1)', None, None, None]
-  headers1 += subheaders
-  if has_parallel:
-    headers += ['R({})'.format(maxp), None, None, None]
+  for p in procs_to_report:
+    headers += ['R({})'.format(p), None, None, None]
     headers1 += subheaders
 
 tt = [headers, "-", headers1, "="]
 
 for res in all_results:
   tag = res['tag']
-  bt1_avg, bt1_std = res['bt1']
-  btp_avg, btp_std = res['btp']
-  br1 = res['br1']
-  brp = res['brp']
-  mt1_avg, mt1_std = res['mt1']
-  mtp_avg, mtp_std = res['mtp']
-  mr1 = res['mr1']
-  mrp = res['mrp']
-
-  thisRow = [
-    tm_std(bt1_avg, bt1_std),
-    tm_std(mt1_avg, mt1_std),
-    tm_std(*ratioStats(res['mt1_times'], res['bt1_times'])),
-    tm_std(*diffStats(res['mt1_times'], res['bt1_times']))
-  ]
-  if has_parallel:
+  thisRow = []
+  for p in procs_to_report:
+    bt_avg, bt_std = res[p]['bt']
+    mt_avg, mt_std = res[p]['mt']
     thisRow += [
-      tm_std(btp_avg, btp_std),
-      tm_std(mtp_avg, mtp_std),
-      tm_std(*ratioStats(res['mtp_times'], res['btp_times'])),
-      tm_std(*diffStats(res['mtp_times'], res['btp_times']))
+      tm_std(bt_avg, bt_std),
+      tm_std(mt_avg, mt_std),
+      tm_std(*ratioStats(res[p]['mt_times'], res[p]['bt_times'])),
+      tm_std(*diffStats(res[p]['mt_times'], res[p]['bt_times']))
     ]
   if has_space:
-    thisRow += [
-      br1,
-      mr1,
-      tm_std(*ratioStats(res['mr1_spaces'], res['br1_spaces'])),
-      tm_std(*[x/1000000.0 if x is not None else None for x in diffStats(res['mr1_spaces'], res['br1_spaces'])])
-    ]
-    if has_parallel:
+    for p in procs_to_report:
+      br = res[p]['br']
+      mr = res[p]['mr']
       thisRow += [
-        brp,
-        mrp,
-        tm_std(*ratioStats(res['mrp_spaces'], res['brp_spaces'])),
-        tm_std(*[x/1000000.0 if x is not None else None for x in diffStats(res['mrp_spaces'], res['brp_spaces'])])
+        br,
+        mr,
+        tm_std(*ratioStats(res[p]['mr_spaces'], res[p]['br_spaces'])),
+        tm_std(*[x/1000000.0 if x is not None else None for x in diffStats(res[p]['mr_spaces'], res[p]['br_spaces'])])
       ]
   thisRow = [displayTag(tag)] + [str(x) if x is not None else "--" for x in thisRow]
   tt.append(thisRow)
@@ -895,26 +886,28 @@ print("")
 # Summary Statistics
 # ============================================================================
 
-ratios = []
-for res in all_results:
-  times_m = res['mtp_times'] if has_parallel else res['mt1_times']
-  times_b = res['btp_times'] if has_parallel else res['bt1_times']
-  r, _ = ratioStats(times_m, times_b)
-  if r is not None:
-    ratios.append(r)
+summary_p = procs_to_report[-1] if procs_to_report else None
+if summary_p is not None:
+  ratios = []
+  for res in all_results:
+    times_m = res[summary_p]['mt_times']
+    times_b = res[summary_p]['bt_times']
+    r, _ = ratioStats(times_m, times_b)
+    if r is not None:
+      ratios.append(r)
 
-if ratios:
-  r_arr = np.asarray(ratios, dtype=float)
-  g = float(np.exp(np.mean(np.log(r_arr))))
-  if len(r_arr) > 1:
-    boot_indices = RNG.choice(len(r_arr), size=(10000, len(r_arr)), replace=True)
-    boot_g = np.exp(np.mean(np.log(r_arr[boot_indices]), axis=1))
-    ci_low, ci_high = np.percentile(boot_g, [2.5, 97.5])
-    ci = float((ci_high - ci_low) / 2.0)
-  else:
-    ci = 0.0
-  print("Geomean {}/{} (± ci): {} (± {})".format(FLAVOR_LETTER, BASELINE_LETTER, tm(g), tm(ci)))
-  print("")
+  if ratios:
+    r_arr = np.asarray(ratios, dtype=float)
+    g = float(np.exp(np.mean(np.log(r_arr))))
+    if len(r_arr) > 1:
+      boot_indices = RNG.choice(len(r_arr), size=(10000, len(r_arr)), replace=True)
+      boot_g = np.exp(np.mean(np.log(r_arr[boot_indices]), axis=1))
+      ci_low, ci_high = np.percentile(boot_g, [2.5, 97.5])
+      ci = float((ci_high - ci_low) / 2.0)
+    else:
+      ci = 0.0
+    print("Geomean {}/{} (± ci): {} (± {})".format(FLAVOR_LETTER, BASELINE_LETTER, tm(g), tm(ci)))
+    print("")
 
 if not ignored:
   print("Ignored experiments: none")
