@@ -1,0 +1,12 @@
+{
+    "compiler": "~/code/mpl/build/bin/mpl",
+    "flags": ["-codegen", "c",
+              "-link-opt", "-s",
+              "-build-magic", "0",
+              "-shallow-flatten-max-iters", "0",
+              "-pre-flatten-post-steps-only", "true",
+              "-pre-flatten-phase", "late"
+             ],
+    "comment": "Tuple baseline (post-steps only, late phase, no shallow flatten)",
+    "compat": "mpl"
+}

@@ -6,6 +6,7 @@ This directory contains different experiment configurations for MLton and MPL:
 
 * `mlton.json`: Default, scratch
 * `mlton-baseline.json`: MLton baseline configuration (determinism + disable changed passes)
+* `mlton-tuple-baseline.json`: Tuple baseline configuration (post-steps only, late phase, no shallow flatten)
 * `mlton-con.json`: `PreFlatten` for `ConApp`
 * `mlton-tuple.json`: `PreFlatten` for `tuple`
 * `mlton-aos.json`: `DeepFlatten` in AoS config
@@ -15,6 +16,7 @@ This directory contains different experiment configurations for MLton and MPL:
 
 * `mpl.json`: Default MPL configuration
 * `mpl-baseline.json`: Baseline configuration
+* `mpl-tuple-baseline.json`: Tuple baseline configuration (post-steps only, late phase, no shallow flatten)
 * `mpl-con.json`: `PreFlatten` for `ConApp`
 * `mpl-tuple.json`: `PreFlatten` for `tuple`
 * `mpl-aos.json`: `DeepFlatten` in AoS config
