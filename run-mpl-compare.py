@@ -78,13 +78,43 @@ def filter_identical_binaries(root, matching_rows, test_config, base_config):
     ]
 
 
-def main():
+def generate_run_rows(active_rows, test_config, base_config, test_run_under=None, base_run_under=None):
+    run_rows = []
+    for row in active_rows:
+        r_test = row.copy()
+        r_test["config"] = test_config
+        if "cmd" in r_test:
+            r_test["cmd"] = r_test["cmd"].replace(".mpl.bin", f".{test_config}.bin", 1)
+            if test_run_under and test_run_under.strip():
+                r_test["cmd"] = f"{test_run_under.strip()} {r_test['cmd']}"
+        if test_run_under and test_run_under.strip():
+            r_test["run_under"] = test_run_under.strip()
+        run_rows.append(r_test)
+
+    for row in active_rows:
+        r_base = row.copy()
+        r_base["config"] = base_config
+        if "cmd" in r_base:
+            r_base["cmd"] = r_base["cmd"].replace(".mpl.bin", f".{base_config}.bin", 1)
+            if base_run_under and base_run_under.strip():
+                r_base["cmd"] = f"{base_run_under.strip()} {r_base['cmd']}"
+        if base_run_under and base_run_under.strip():
+            r_base["run_under"] = base_run_under.strip()
+        run_rows.append(r_base)
+
+    return run_rows
+
+
+def create_parser():
     parser = argparse.ArgumentParser(description="Run MPL compare experiments.")
     parser.add_argument('--test', default='.*', help="Benchmark test name pattern (regex)")
     parser.add_argument('--base_config', default='mpl-baseline', help="Base config name")
     parser.add_argument('--test_config', default='mpl', help="Test config name")
     parser.add_argument('--core_counts', default='1', help="Comma-separated list of core counts (default: 1)")
     parser.add_argument('--extra_flags', default=None, help="Extra flags to pass to make (sets EXTRA_FLAGS)")
+    parser.add_argument('--run_under', '--run-under', default=None, help="Command prefix to wrap both base and test benchmark runs")
+    parser.add_argument('--base_run_under', '--base-run-under', default=None, help="Command prefix to wrap base benchmark runs")
+    parser.add_argument('--test_run_under', '--test-run-under', default=None, help="Command prefix to wrap test benchmark runs")
     parser.add_argument(
         '--filter_identical_binaries',
         dest='filter_identical_binaries',
@@ -98,7 +128,11 @@ def main():
         action='store_false',
         help=argparse.SUPPRESS
     )
+    return parser
 
+
+def main():
+    parser = create_parser()
     args, gencmds_args = parser.parse_known_args()
 
     root = get_git_root()
@@ -151,31 +185,31 @@ def main():
 
     prebuild_binaries(root, matching_rows, args.test_config, args.base_config, args.extra_flags)
 
+    base_run_under = args.base_run_under if args.base_run_under is not None else args.run_under
+    test_run_under = args.test_run_under if args.test_run_under is not None else args.run_under
+
     if args.filter_identical_binaries:
-        active_rows = filter_identical_binaries(
-            root, matching_rows, args.test_config, args.base_config
-        )
-        if not active_rows:
-            print("[INFO] All benchmark binaries are identical; no tests to run.")
-            sys.exit(0)
+        if base_run_under != test_run_under:
+            print("[INFO] Not filtering identical binaries because base_run_under and test_run_under differ")
+            active_rows = matching_rows
+        else:
+            active_rows = filter_identical_binaries(
+                root, matching_rows, args.test_config, args.base_config
+            )
+            if not active_rows:
+                print("[INFO] All benchmark binaries are identical; no tests to run.")
+                sys.exit(0)
     else:
         active_rows = matching_rows
 
     # Run experiments for both test_config and base_config
-    run_rows = []
-    for row in active_rows:
-        r_test = row.copy()
-        r_test["config"] = args.test_config
-        if "cmd" in r_test:
-            r_test["cmd"] = r_test["cmd"].replace(".mpl.bin", f".{args.test_config}.bin", 1)
-        run_rows.append(r_test)
-
-    for row in active_rows:
-        r_base = row.copy()
-        r_base["config"] = args.base_config
-        if "cmd" in r_base:
-            r_base["cmd"] = r_base["cmd"].replace(".mpl.bin", f".{args.base_config}.bin", 1)
-        run_rows.append(r_base)
+    run_rows = generate_run_rows(
+        active_rows,
+        args.test_config,
+        args.base_config,
+        test_run_under=test_run_under,
+        base_run_under=base_run_under
+    )
 
     run_input = "\n".join(json.dumps(r) for r in run_rows) + "\n"
 
