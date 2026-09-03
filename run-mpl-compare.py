@@ -189,16 +189,12 @@ def main():
     test_run_under = args.test_run_under if args.test_run_under is not None else args.run_under
 
     if args.filter_identical_binaries:
-        if base_run_under != test_run_under:
-            print("[INFO] Not filtering identical binaries because base_run_under and test_run_under differ")
-            active_rows = matching_rows
-        else:
-            active_rows = filter_identical_binaries(
-                root, matching_rows, args.test_config, args.base_config
-            )
-            if not active_rows:
-                print("[INFO] All benchmark binaries are identical; no tests to run.")
-                sys.exit(0)
+        active_rows = filter_identical_binaries(
+            root, matching_rows, args.test_config, args.base_config
+        )
+        if not active_rows:
+            print("[INFO] All benchmark binaries are identical; no tests to run.")
+            sys.exit(0)
     else:
         active_rows = matching_rows
 
