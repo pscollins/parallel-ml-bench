@@ -1,0 +1,19 @@
+# started on Tue Sep  8 13:50:34 2026
+
+978453,,context-switches,555505614044,100.00,1762.1,cs/sec  cs_per_second
+0,,cpu-migrations,555424924739,100.00,0.0,migrations/sec  migrations_per_second
+8335527,,page-faults,555341269353,100.00,15011.6,faults/sec  page_faults_per_second
+555273.16,msec,task-clock,555273162312,100.00,57.3,CPUs  CPUs_utilized
+22752627923,,L1-dcache-load-misses,221322852216,39.00,5.9,%  l1d_miss_rate
+<not counted>,,L1-icache-load-misses,0,100.00,,%  l1i_miss_rate
+329682163,,LLC-loads,215837563776,38.00,20.5,%  llc_miss_rate
+72821843,,branch-misses,241123393740,43.00,0.0,%  branch_miss_rate
+185287204299,,branches,239413548340,43.00,333.7,M/sec  branch_frequency
+1618528776226,,cpu-cycles,231465405531,41.00,2.9,GHz  cycles_frequency
+1321080052424,,instructions,241426809261,43.00,0.8,instructions  insn_per_cycle
+386106267400,,dTLB-loads,213009820847,38.00,0.0,%  dtlb_miss_rate
+,206616060489,37.00,,,,TopdownL1
+,,,,,18.9,%  tma_backend_bound
+,,,,,71.6,%  tma_bad_speculation
+,255785564118,46.00,,,2.0,%  tma_frontend_bound
+,294734654241,53.00,,,7.5,%  tma_retiring

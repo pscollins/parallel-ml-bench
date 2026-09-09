@@ -1,0 +1,9 @@
+make: Entering directory '/home/cc/code/parallel-ml-bench/mpl'
+[INFO] /home/cc/code/mpl/build/bin/mpl -mlb-path-var 'COMPAT mpl' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -shallow-flatten-max-iters 1 -pre-flatten-max-iters 0 -shallow-flatten-mechanism aos -shallow-flatten-policy maxWidthSameType:3 -output bin/linearrec.mpl-aos.bin /home/cc/code/parallel-ml-bench/mpl/bench/linearrec/linearrec.mlb
+[INFO] compilation succeeded
+[INFO] /home/cc/code/mpl/build/bin/mpl -mlb-path-var 'COMPAT mpl' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -disable-pass (preFlatten.*)|(shallowFlatten.*) -output bin/linearrec.mpl-baseline.bin /home/cc/code/parallel-ml-bench/mpl/bench/linearrec/linearrec.mlb
+[INFO] compilation succeeded
+make: Leaving directory '/home/cc/code/parallel-ml-bench/mpl'
+[INFO] Building 2 binaries in /home/cc/code/parallel-ml-bench/mpl: linearrec.mpl-aos.bin, linearrec.mpl-baseline.bin
+[INFO] Running benchmark 'linearrec': 'mpl-aos' and 'mpl-baseline' binaries differ
+[INFO] wrote results to /home/cc/code/parallel-ml-bench/results/260908-135019

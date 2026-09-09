@@ -1,0 +1,111 @@
+\begin{table}[htbp]
+  \centering
+  \caption{AoS performance metric comparison on 1 core (Quickhull, 1 core)}
+  \label{tab:perf_comparison_aos_quickhull_1core}
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Metric} & \textbf{Baseline} & \textbf{Test} & \textbf{Diff / Change} \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Execution Overview}} \\
+    \quad Task Clock (s)           & 49.53 s   & 36.65 s   & -26.00\%   \\
+    \quad Instructions ($10^9$)    & 233.33 B  & 175.11 B  & -24.95\%   \\
+    \quad IPC                      & 1.59       & 1.61       & +1.26\%    \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Rates and Miss Percentages}} \\
+    \quad Branch Miss Rate         & 1.7\%      & 2.2\%      & +0.5 pp    \\
+    \quad L1 D-Cache Miss Rate     & 3.5\%      & 2.2\%      & -1.3 pp    \\
+    \quad LLC Load Miss Rate       & 63.5\%     & 48.4\%     & -15.1 pp   \\
+    \quad dTLB Load Miss Rate      & 0.1\%      & 0.1\%      & 0.0 pp     \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Topdown L1 Metrics}} \\
+    \quad Retiring                 & 2.6\%      & 5.3\%      & +2.7 pp    \\
+    \quad Bad Speculation          & 88.9\%     & 85.6\%     & -3.3 pp    \\
+    \quad Frontend Bound           & 0.3\%      & 0.3\%      & 0.0 pp     \\
+    \quad Backend Bound            & 8.3\%      & 8.8\%      & +0.5 pp    \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{AoS performance metric comparison on 160 cores (Quickhull, 160 cores)}
+  \label{tab:perf_comparison_aos_quickhull_160cores}
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Metric} & \textbf{Baseline} & \textbf{Test} & \textbf{Diff / Change} \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Execution Overview}} \\
+    \quad Task Clock (s)           & 213.50 s   & 120.36 s   & -43.63\%   \\
+    \quad Instructions ($10^9$)    & 304.11 B  & 238.45 B  & -21.59\%   \\
+    \quad IPC                      & 0.50       & 0.70       & +40.00\%   \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Rates and Miss Percentages}} \\
+    \quad Branch Miss Rate         & 1.4\%      & 1.7\%      & +0.3 pp    \\
+    \quad L1 D-Cache Miss Rate     & 4.7\%      & 3.2\%      & -1.5 pp    \\
+    \quad LLC Load Miss Rate       & 68.7\%     & 60.2\%     & -8.5 pp    \\
+    \quad dTLB Load Miss Rate      & 0.1\%      & 0.1\%      & 0.0 pp     \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Topdown L1 Metrics}} \\
+    \quad Retiring                 & 3.8\%      & 9.6\%      & +5.8 pp    \\
+    \quad Bad Speculation          & 64.6\%     & 59.3\%     & -5.3 pp    \\
+    \quad Frontend Bound           & 0.9\%      & 1.9\%      & +1.0 pp    \\
+    \quad Backend Bound            & 30.7\%      & 29.2\%      & -1.5 pp    \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{AoS performance metric comparison on 1 core (Linearrec, 1 core)}
+  \label{tab:perf_comparison_aos_linearrec_1core}
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Metric} & \textbf{Baseline} & \textbf{Test} & \textbf{Diff / Change} \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Execution Overview}} \\
+    \quad Task Clock (s)           & 86.98 s   & 43.11 s   & -50.44\%   \\
+    \quad Instructions ($10^9$)    & 827.40 B  & 224.58 B  & -72.86\%   \\
+    \quad IPC                      & 3.20       & 1.75       & -45.31\%   \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Rates and Miss Percentages}} \\
+    \quad Branch Miss Rate         & 0.0\%      & 0.0\%      & 0.0 pp     \\
+    \quad L1 D-Cache Miss Rate     & 1.5\%      & 2.6\%      & +1.1 pp    \\
+    \quad LLC Load Miss Rate       & 24.7\%     & 20.5\%     & -4.2 pp    \\
+    \quad dTLB Load Miss Rate      & 0.0\%      & 0.0\%      & 0.0 pp     \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Topdown L1 Metrics}} \\
+    \quad Retiring                 & 3.3\%      & 8.0\%      & +4.7 pp    \\
+    \quad Bad Speculation          & 94.6\%     & 81.5\%     & -13.1 pp   \\
+    \quad Frontend Bound           & 0.1\%      & 0.9\%      & +0.8 pp    \\
+    \quad Backend Bound            & 2.0\%      & 9.7\%      & +7.7 pp    \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{AoS performance metric comparison on 160 cores (Linearrec, 160 cores)}
+  \label{tab:perf_comparison_aos_linearrec_160cores}
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Metric} & \textbf{Baseline} & \textbf{Test} & \textbf{Diff / Change} \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Execution Overview}} \\
+    \quad Task Clock (s)           & 391.07 s   & 555.27 s   & +41.99\%   \\
+    \quad Instructions ($10^9$)    & 902.57 B  & 1321.08 B  & +46.37\%   \\
+    \quad IPC                      & 0.80       & 0.82       & +2.50\%    \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Rates and Miss Percentages}} \\
+    \quad Branch Miss Rate         & 0.1\%      & 0.0\%      & -0.1 pp    \\
+    \quad L1 D-Cache Miss Rate     & 5.3\%      & 5.9\%      & +0.6 pp    \\
+    \quad LLC Load Miss Rate       & 26.1\%     & 20.5\%     & -5.6 pp    \\
+    \quad dTLB Load Miss Rate      & 0.0\%      & 0.0\%      & 0.0 pp     \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Topdown L1 Metrics}} \\
+    \quad Retiring                 & 8.7\%      & 7.5\%      & -1.2 pp    \\
+    \quad Bad Speculation          & 61.1\%     & 71.6\%     & +10.5 pp   \\
+    \quad Frontend Bound           & 3.4\%      & 2.0\%      & -1.4 pp    \\
+    \quad Backend Bound            & 26.9\%      & 18.9\%      & -8.0 pp    \\
+    \bottomrule
+  \end{tabular}
+\end{table}

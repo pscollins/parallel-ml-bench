@@ -1,0 +1,408 @@
+[INFO] Building 2 binaries in /home/cc/code/parallel-ml-bench/mpl: quickhull.mpl-aos.bin, quickhull.mpl-baseline.bin
+make: Entering directory '/home/cc/code/parallel-ml-bench/mpl'
+[INFO] /home/cc/code/mpl/build/bin/mpl -mlb-path-var 'COMPAT mpl' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -shallow-flatten-max-iters 1 -pre-flatten-max-iters 0 -shallow-flatten-mechanism aos -shallow-flatten-policy maxWidthSameType:3 -output bin/quickhull.mpl-aos.bin /home/cc/code/parallel-ml-bench/mpl/bench/quickhull/quickhull.mlb
+[INFO] /home/cc/code/mpl/build/bin/mpl -mlb-path-var 'COMPAT mpl' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -disable-pass (preFlatten.*)|(shallowFlatten.*) -output bin/quickhull.mpl-baseline.bin /home/cc/code/parallel-ml-bench/mpl/bench/quickhull/quickhull.mlb
+[INFO] compilation succeeded
+[INFO] compilation succeeded
+make: Leaving directory '/home/cc/code/parallel-ml-bench/mpl'
+[INFO] Running benchmark 'quickhull': 'mpl-aos' and 'mpl-baseline' binaries differ
+[1/2] perf stat -dd -D 5350 -x , -o /tmp/quickhull_160_aos_test.txt /usr/bin/time -v bin/quickhull.mpl-aos.bin @mpl procs 160 set-affinity -- -infile ../inputs/uniform-circle-20M  -repeat 20 -warmup 5
+warmup 5.0000
+repeat 20
+====== WARMUP ======
+quickhull
+warmup_run 0.0420s
+warmup_run 0.0406s
+warmup_run 0.0439s
+warmup_run 0.0414s
+warmup_run 0.1278s
+warmup_run 0.0353s
+warmup_run 0.0383s
+warmup_run 0.0353s
+warmup_run 0.0389s
+warmup_run 0.0360s
+warmup_run 0.0375s
+warmup_run 0.0371s
+warmup_run 0.0368s
+warmup_run 0.0350s
+warmup_run 0.0423s
+warmup_run 0.0441s
+warmup_run 0.0404s
+warmup_run 0.0361s
+warmup_run 0.0355s
+warmup_run 0.0362s
+warmup_run 0.0372s
+warmup_run 0.0357s
+warmup_run 0.0406s
+warmup_run 0.0350s
+warmup_run 0.0383s
+warmup_run 0.0423s
+warmup_run 0.0392s
+warmup_run 0.0378s
+warmup_run 0.0354s
+warmup_run 0.0395s
+warmup_run 0.0363s
+warmup_run 0.0383s
+warmup_run 0.0363s
+warmup_run 0.0364s
+warmup_run 0.0348s
+warmup_run 0.0390s
+warmup_run 0.0358s
+warmup_run 0.0376s
+warmup_run 0.0438s
+warmup_run 0.0358s
+warmup_run 0.0381s
+warmup_run 0.0345s
+warmup_run 0.0343s
+warmup_run 0.0443s
+warmup_run 0.0365s
+warmup_run 0.0365s
+warmup_run 0.0402s
+warmup_run 0.0379s
+warmup_run 0.0402s
+warmup_run 0.0354s
+warmup_run 0.0350s
+warmup_run 0.0400s
+warmup_run 0.0352s
+warmup_run 0.0368s
+warmup_run 0.0395s
+warmup_run 0.0386s
+warmup_run 0.0360s
+warmup_run 0.0379s
+warmup_run 0.0351s
+warmup_run 0.0381s
+warmup_run 0.0384s
+warmup_run 0.0349s
+warmup_run 0.0391s
+warmup_run 0.0363s
+warmup_run 0.0375s
+warmup_run 0.0383s
+warmup_run 0.0384s
+warmup_run 0.0381s
+warmup_run 0.0373s
+warmup_run 0.0369s
+warmup_run 0.0399s
+warmup_run 0.0397s
+warmup_run 0.0351s
+warmup_run 0.0407s
+warmup_run 0.0385s
+warmup_run 0.0352s
+warmup_run 0.0386s
+warmup_run 0.0357s
+warmup_run 0.0351s
+warmup_run 0.0358s
+warmup_run 0.0402s
+warmup_run 0.0356s
+warmup_run 0.0407s
+warmup_run 0.0370s
+warmup_run 0.0370s
+warmup_run 0.0345s
+warmup_run 0.0411s
+warmup_run 0.0368s
+warmup_run 0.0356s
+warmup_run 0.0396s
+warmup_run 0.0354s
+warmup_run 0.0377s
+warmup_run 0.0380s
+warmup_run 0.0353s
+warmup_run 0.0407s
+warmup_run 0.0352s
+warmup_run 0.0376s
+warmup_run 0.0426s
+warmup_run 0.0398s
+warmup_run 0.0365s
+warmup_run 0.0408s
+warmup_run 0.0357s
+warmup_run 0.0351s
+warmup_run 0.0433s
+warmup_run 0.0361s
+warmup_run 0.0375s
+warmup_run 0.0441s
+warmup_run 0.0370s
+warmup_run 0.0379s
+warmup_run 0.0352s
+warmup_run 0.0403s
+warmup_run 0.0348s
+warmup_run 0.0369s
+warmup_run 0.0347s
+warmup_run 0.0388s
+warmup_run 0.0385s
+warmup_run 0.0351s
+warmup_run 0.0356s
+warmup_run 0.0384s
+warmup_run 0.0365s
+warmup_run 0.0385s
+warmup_run 0.0438s
+warmup_run 0.0349s
+warmup_run 0.0353s
+warmup_run 0.0462s
+warmup_run 0.0360s
+warmup_run 0.0383s
+warmup_run 0.0358s
+warmup_run 0.0368s
+warmup_run 0.0381s
+==== END WARMUP ====
+quickhull
+time 0.0427s
+time 0.0411s
+time 0.0383s
+time 0.0382s
+time 0.0410s
+time 0.0385s
+time 0.0394s
+time 0.0367s
+time 0.0378s
+time 0.0367s
+time 0.0383s
+time 0.0357s
+time 0.0375s
+time 0.0358s
+time 0.0383s
+time 0.0357s
+time 0.0384s
+time 0.0404s
+time 0.0384s
+time 0.0395s
+
+average 0.0384s
+minimum 0.0357s
+maximum 0.0427s
+std dev 0.0019s
+total   0.7685s
+end-to-end 0.7698s
+======== Runtime Stats ========
+num spawns        406467
+  eager           318178 (78%)
+  at heartbeat    88289 (22%)
+
+num heartbeats    103569
+  skipped         0 (0%)
+
+spawns / hb       3.92
+  eager           3.07
+  at heartbeat    0.85
+
+num steals        244404
+
+max hb stack walk 0
+max hb stack size 0
+
+sus marks 307435
+de checks 0
+entanglements 0
+bytes pinned entangled 0
+bytes pinned entangled watermark 0
+
+lgc count 40697
+lgc bytes reclaimed 1381155992
+lgc bytes in scope  58216748464
+lgc trace time(ms)  214
+lgc promo time(ms)  61
+lgc total time(ms)  275
+
+cgc count 212
+cgc bytes reclaimed 7699468872
+cgc bytes in scope  14963791440
+cgc time(ms) 673
+
+work time(ms) 93312
+idle time(ms) 28241
+====== End Runtime Stats ======
+hull size 1135
+
+Events disabled
+Events enabled
+	Command being timed: "bin/quickhull.mpl-aos.bin @mpl procs 160 set-affinity -- -infile ../inputs/uniform-circle-20M -repeat 20 -warmup 5"
+	User time (seconds): 914.37
+	System time (seconds): 35.84
+	Percent of CPU this job got: 14978%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:06.34
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3980800
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1517156
+	Voluntary context switches: 377915
+	Involuntary context switches: 12630
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+[2/2] perf stat -dd -D 5850 -x , -o /tmp/quickhull_160_aos_base.txt /usr/bin/time -v bin/quickhull.mpl-baseline.bin @mpl procs 160 set-affinity -- -infile ../inputs/uniform-circle-20M  -repeat 20 -warmup 5
+warmup 5.0000
+repeat 20
+====== WARMUP ======
+quickhull
+warmup_run 0.0747s
+warmup_run 0.0745s
+warmup_run 0.0723s
+warmup_run 0.0799s
+warmup_run 0.0734s
+warmup_run 0.0739s
+warmup_run 0.0699s
+warmup_run 0.0759s
+warmup_run 0.0692s
+warmup_run 0.0716s
+warmup_run 0.0707s
+warmup_run 0.0720s
+warmup_run 0.0704s
+warmup_run 0.0716s
+warmup_run 0.0723s
+warmup_run 0.0717s
+warmup_run 0.0721s
+warmup_run 0.0786s
+warmup_run 0.0769s
+warmup_run 0.0737s
+warmup_run 0.0719s
+warmup_run 0.0718s
+warmup_run 0.0708s
+warmup_run 0.0710s
+warmup_run 0.0769s
+warmup_run 0.0748s
+warmup_run 0.0722s
+warmup_run 0.0711s
+warmup_run 0.0748s
+warmup_run 0.0721s
+warmup_run 0.0714s
+warmup_run 0.0755s
+warmup_run 0.0824s
+warmup_run 0.0734s
+warmup_run 0.0736s
+warmup_run 0.0714s
+warmup_run 0.0731s
+warmup_run 0.0727s
+warmup_run 0.0712s
+warmup_run 0.0711s
+warmup_run 0.0775s
+warmup_run 0.0716s
+warmup_run 0.0780s
+warmup_run 0.0717s
+warmup_run 0.0710s
+warmup_run 0.0721s
+warmup_run 0.0828s
+warmup_run 0.0736s
+warmup_run 0.0767s
+warmup_run 0.0691s
+warmup_run 0.0692s
+warmup_run 0.0664s
+warmup_run 0.0657s
+warmup_run 0.0675s
+warmup_run 0.0703s
+warmup_run 0.0702s
+warmup_run 0.0692s
+warmup_run 0.1049s
+warmup_run 0.0696s
+warmup_run 0.0719s
+warmup_run 0.0672s
+warmup_run 0.0771s
+warmup_run 0.0669s
+warmup_run 0.0672s
+warmup_run 0.0672s
+warmup_run 0.0674s
+warmup_run 0.0817s
+warmup_run 0.0678s
+warmup_run 0.0687s
+==== END WARMUP ====
+quickhull
+time 0.0684s
+time 0.0682s
+time 0.0713s
+time 0.0676s
+time 0.0695s
+time 0.0705s
+time 0.0817s
+time 0.0683s
+time 0.0697s
+time 0.0682s
+time 0.0680s
+time 0.0692s
+time 0.0694s
+time 0.0703s
+time 0.0736s
+time 0.0740s
+time 0.0699s
+time 0.0705s
+time 0.0692s
+time 0.0720s
+
+average 0.0705s
+minimum 0.0676s
+maximum 0.0817s
+std dev 0.0032s
+total   1.4096s
+end-to-end 1.4116s
+======== Runtime Stats ========
+num spawns        442618
+  eager           336983 (76%)
+  at heartbeat    105635 (24%)
+
+num heartbeats    163295
+  skipped         0 (0%)
+
+spawns / hb       2.71
+  eager           2.06
+  at heartbeat    0.65
+
+num steals        248328
+
+max hb stack walk 0
+max hb stack size 0
+
+sus marks 312926
+de checks 0
+entanglements 0
+bytes pinned entangled 0
+bytes pinned entangled watermark 0
+
+lgc count 91703
+lgc bytes reclaimed 24277459280
+lgc bytes in scope  460860079912
+lgc trace time(ms)  1999
+lgc promo time(ms)  224
+lgc total time(ms)  2223
+
+cgc count 234
+cgc bytes reclaimed 7445404408
+cgc bytes in scope  10094302192
+cgc time(ms) 1143
+
+work time(ms) 178357
+idle time(ms) 43938
+====== End Runtime Stats ======
+hull size 1135
+
+Events disabled
+Events enabled
+	Command being timed: "bin/quickhull.mpl-baseline.bin @mpl procs 160 set-affinity -- -infile ../inputs/uniform-circle-20M -repeat 20 -warmup 5"
+	User time (seconds): 1007.19
+	System time (seconds): 101.65
+	Percent of CPU this job got: 12698%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.73
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 30936320
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 7977936
+	Voluntary context switches: 549483
+	Involuntary context switches: 14776
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+[INFO] wrote results to /home/cc/code/parallel-ml-bench/results/260908-134931
