@@ -3,11 +3,11 @@
     [
       {
         "match": { "config": "mpl", "exp": "time" },
-        "template": "/usr/bin/time -v bin/<bench>.<config>.bin @mpl <procs?procs {}> set-affinity -- <args?{} ><args1?{}> -repeat 20 -warmup 5"
+        "template": "/usr/bin/time -v bin/<bench>.<config>.bin @mpl <procs?procs {}> set-affinity max-cc-depth 0 min-collection-depth 1 -- <args?{} ><args1?{}> -repeat 20 -warmup 5"
       },
       {
         "match": { "config": "mpl", "exp": "space" },
-        "template": "/usr/bin/time -v bin/<bench>.<config>.bin @mpl <procs?procs {}> set-affinity -- <args?{} ><args1?{}> -repeat 20 -warmup 0"
+        "template": "/usr/bin/time -v bin/<bench>.<config>.bin @mpl <procs?procs {}> set-affinity max-cc-depth 0 min-collection-depth 1 -- <args?{} ><args1?{}> -repeat 20 -warmup 0"
       },
       {
         "match": { "config": "mlton", "exp": "time", "procs": "1" },
