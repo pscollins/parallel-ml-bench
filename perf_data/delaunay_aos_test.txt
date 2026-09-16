@@ -1,0 +1,19 @@
+# started on Thu Sep 17 13:02:47 2026
+
+758,,context-switches,96223973420,100.00,7.9,cs/sec  cs_per_second
+17,,cpu-migrations,96223959219,100.00,0.2,migrations/sec  migrations_per_second
+2935364,,page-faults,96223949342,100.00,30505.5,faults/sec  page_faults_per_second
+96223.94,msec,task-clock,96223939547,100.00,0.5,CPUs  CPUs_utilized
+10083406677,,L1-dcache-load-misses,34367729934,35.00,12.0,%  l1d_miss_rate
+<not counted>,,L1-icache-load-misses,0,100.00,,%  l1i_miss_rate
+3621290264,,LLC-loads,13747153097,14.00,16.9,%  llc_miss_rate
+1676861675,,branch-misses,20618381374,21.00,3.9,%  branch_miss_rate
+42510991883,,branches,27494687415,28.00,441.8,M/sec  branch_frequency
+285573111674,,cpu-cycles,34365456214,35.00,3.0,GHz  cycles_frequency
+250892387350,,instructions,41241326111,42.00,0.9,instructions  insn_per_cycle
+83708527498,,dTLB-loads,41237818139,42.00,2.6,%  dtlb_miss_rate
+,48113108395,50.00,,,,TopdownL1
+,,,,,14.6,%  tma_backend_bound
+,,,,,83.5,%  tma_bad_speculation
+,48107386066,49.00,,,0.0,%  tma_frontend_bound
+,54982430355,57.00,,,1.9,%  tma_retiring

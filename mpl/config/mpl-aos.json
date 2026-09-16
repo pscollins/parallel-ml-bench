@@ -1,7 +1,6 @@
 {
     "compiler": "~/code/mpl/build/bin/mpl",
     "flags": ["-codegen", "c",
-              "-link-opt", "-s",
               "-build-magic", "0",
               "-shallow-flatten-max-iters", "1",
               "-pre-flatten-max-iters", "0",

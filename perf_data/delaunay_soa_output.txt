@@ -1,0 +1,137 @@
+make: Entering directory '/home/cc/code/parallel-ml-bench/mpl'
+[INFO] /home/cc/code/mlton/build/bin/mlton -mlb-path-var 'COMPAT mlton' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -disable-pass (preFlatten.*)|(shallowFlatten.*) -output bin/delaunay.mlton-baseline.bin /home/cc/code/parallel-ml-bench/mpl/bench/delaunay/delaunay.mlb
+[INFO] compilation succeeded
+[INFO] /home/cc/code/mlton/build/bin/mlton -mlb-path-var 'COMPAT mlton' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -shallow-flatten-max-iters 1 -pre-flatten-max-iters 0 -shallow-flatten-mechanism soa -shallow-flatten-policy maxWidthSameType:3 -output bin/delaunay.mlton-soa.bin /home/cc/code/parallel-ml-bench/mpl/bench/delaunay/delaunay.mlb
+[INFO] compilation succeeded
+make: Leaving directory '/home/cc/code/parallel-ml-bench/mpl'
+[1/2] perf stat -dd -D 108000 -x , -o /tmp/delaunay_soa_test.txt /usr/bin/time -v bin/delaunay.mlton-soa.bin -input ../inputs/uniform-circle-1M  -repeat 20 -warmup 5
+parsed input points in 100.6213s
+warmup 5.0000
+repeat 20
+====== WARMUP ======
+delaunay
+warmup_run 6.6433s
+==== END WARMUP ====
+delaunay
+time 6.1148s
+time 6.5414s
+time 6.1826s
+time 5.8979s
+time 5.8995s
+time 6.7349s
+time 6.4458s
+time 5.9606s
+time 5.9252s
+time 5.9164s
+time 5.8915s
+time 5.9733s
+time 5.8611s
+time 5.9497s
+time 5.9230s
+time 5.9486s
+time 6.0498s
+time 5.8872s
+time 5.8905s
+time 5.9546s
+
+average 6.0474s
+total   120.9482s
+end-to-end 120.9485s
+num rounds 220
+
+to see output, use -output and -resolution arguments
+for example: delaunay -n 1000 -output result.ppm -resolution 1000
+
+Events disabled
+Events enabled
+	Command being timed: "bin/delaunay.mlton-soa.bin -input ../inputs/uniform-circle-1M -repeat 20 -warmup 5"
+	User time (seconds): 224.57
+	System time (seconds): 3.68
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:48.36
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2700320
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2230149
+	Voluntary context switches: 1
+	Involuntary context switches: 1821
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+[2/2] perf stat -dd -D 108000 -x , -o /tmp/delaunay_soa_base.txt /usr/bin/time -v bin/delaunay.mlton-baseline.bin -input ../inputs/uniform-circle-1M  -repeat 20 -warmup 5
+parsed input points in 97.2587s
+warmup 5.0000
+repeat 20
+====== WARMUP ======
+delaunay
+warmup_run 5.6302s
+==== END WARMUP ====
+delaunay
+time 5.2008s
+time 4.8863s
+time 4.8899s
+time 4.8620s
+time 4.8819s
+time 5.6325s
+time 5.1985s
+time 4.8380s
+time 5.3413s
+time 5.6490s
+time 5.1884s
+time 4.8708s
+time 4.8490s
+time 4.8746s
+time 4.8994s
+time 5.6466s
+time 5.2536s
+time 4.9119s
+time 5.3707s
+time 5.6506s
+
+average 5.1448s
+total   102.8955s
+end-to-end 102.8957s
+num rounds 220
+
+to see output, use -output and -resolution arguments
+for example: delaunay -n 1000 -output result.ppm -resolution 1000
+
+Events disabled
+Events enabled
+	Command being timed: "bin/delaunay.mlton-baseline.bin -input ../inputs/uniform-circle-1M -repeat 20 -warmup 5"
+	User time (seconds): 199.57
+	System time (seconds): 6.21
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:25.88
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2657592
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3664409
+	Voluntary context switches: 1
+	Involuntary context switches: 1629
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+[INFO] Building 2 binaries in /home/cc/code/parallel-ml-bench/mpl: delaunay.mlton-baseline.bin, delaunay.mlton-soa.bin
+[INFO] Running benchmark 'delaunay': 'mlton-soa' and 'mlton-baseline' binaries differ
+[INFO] wrote results to /home/cc/code/parallel-ml-bench/results/260917-130935

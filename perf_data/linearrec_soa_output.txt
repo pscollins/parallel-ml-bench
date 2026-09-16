@@ -1,0 +1,136 @@
+make: Entering directory '/home/cc/code/parallel-ml-bench/mpl'
+[INFO] /home/cc/code/mlton/build/bin/mlton -mlb-path-var 'COMPAT mlton' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -disable-pass (preFlatten.*)|(shallowFlatten.*) -output bin/linearrec.mlton-baseline.bin /home/cc/code/parallel-ml-bench/mpl/bench/linearrec/linearrec.mlb
+[INFO] compilation succeeded
+[INFO] /home/cc/code/mlton/build/bin/mlton -mlb-path-var 'COMPAT mlton' -default-type int64 -default-type word64 -cc-opt -Wno-error=incompatible-pointer-types -cc-opt -O3 -cc-opt -march=native -codegen c -link-opt -s -build-magic 0 -shallow-flatten-max-iters 1 -pre-flatten-max-iters 0 -shallow-flatten-mechanism soa -shallow-flatten-policy maxWidthSameType:3 -output bin/linearrec.mlton-soa.bin /home/cc/code/parallel-ml-bench/mpl/bench/linearrec/linearrec.mlb
+[INFO] compilation succeeded
+make: Leaving directory '/home/cc/code/parallel-ml-bench/mpl'
+[1/2] perf stat -dd -D 9000 -x , -o /tmp/linearrec_soa_test.txt /usr/bin/time -v bin/linearrec.mlton-soa.bin -n 200000000  -repeat 20 -warmup 5
+n 200000000
+warmup 5.0000
+repeat 20
+====== WARMUP ======
+linear recurrence
+warmup_run 1.1525s
+warmup_run 1.1520s
+warmup_run 1.1523s
+warmup_run 1.1422s
+warmup_run 1.1584s
+==== END WARMUP ====
+linear recurrence
+time 3.5044s
+time 1.1782s
+time 1.1877s
+time 1.1556s
+time 1.1657s
+time 1.1848s
+time 1.1527s
+time 1.1655s
+time 1.1672s
+time 1.1600s
+time 1.2018s
+time 1.1791s
+time 1.1933s
+time 1.1594s
+time 1.1655s
+time 1.1952s
+time 1.1888s
+time 1.1788s
+time 1.1941s
+time 1.1813s
+
+average 1.2930s
+total   25.8591s
+end-to-end 25.8594s
+result 2E8
+
+Events disabled
+Events enabled
+	Command being timed: "bin/linearrec.mlton-soa.bin -n 200000000 -repeat 20 -warmup 5"
+	User time (seconds): 17.58
+	System time (seconds): 16.58
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:34.18
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 34680904
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 11429890
+	Voluntary context switches: 1
+	Involuntary context switches: 266
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+[2/2] perf stat -dd -D 9000 -x , -o /tmp/linearrec_soa_base.txt /usr/bin/time -v bin/linearrec.mlton-baseline.bin -n 200000000  -repeat 20 -warmup 5
+n 200000000
+warmup 5.0000
+repeat 20
+====== WARMUP ======
+linear recurrence
+warmup_run 3.2711s
+warmup_run 3.2727s
+==== END WARMUP ====
+linear recurrence
+time 3.3003s
+time 5.1512s
+time 3.3353s
+time 3.3634s
+time 4.1553s
+time 1.2663s
+time 1.2695s
+time 1.2709s
+time 2.7105s
+time 3.3319s
+time 5.0855s
+time 3.2947s
+time 3.3031s
+time 3.3328s
+time 3.3136s
+time 3.0688s
+time 1.2783s
+time 1.2729s
+time 1.2741s
+time 1.2714s
+
+average 2.7825s
+total   55.6498s
+end-to-end 55.6501s
+result 2E8
+
+Events disabled
+Events enabled
+	Command being timed: "bin/linearrec.mlton-baseline.bin -n 200000000 -repeat 20 -warmup 5"
+	User time (seconds): 30.32
+	System time (seconds): 36.11
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:06.46
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 75596224
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 24810502
+	Voluntary context switches: 1
+	Involuntary context switches: 518
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+[INFO] Building 2 binaries in /home/cc/code/parallel-ml-bench/mpl: linearrec.mlton-baseline.bin, linearrec.mlton-soa.bin
+[INFO] Running benchmark 'linearrec': 'mlton-soa' and 'mlton-baseline' binaries differ
+[INFO] wrote results to /home/cc/code/parallel-ml-bench/results/260917-131847
